@@ -87,11 +87,21 @@ document.addEventListener('DOMContentLoaded', function() {
                         option.text = "Meg";
                         editor.appendChild(option);
                     }
-                });
 
-            editor.addEventListener("change", function() {
-                success(editor.value);
-            });
+                    // Ensure the editor is displayed after options are loaded
+                    onRendered(function() {
+                        editor.focus();
+                        editor.style.cssText = "width:100%; height:100%; padding:0; margin:0; box-sizing:border-box";
+                    });
+
+                    editor.addEventListener("change", function() {
+                        success(editor.value);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching SSK data:', error);
+                    cancel();
+                });
 
             return editor;
         }
@@ -119,11 +129,21 @@ document.addEventListener('DOMContentLoaded', function() {
                         option.text = "Meg";
                         editor.appendChild(option);
                     }
-                });
 
-            editor.addEventListener("change", function() {
-                success(editor.value);
-            });
+                    // Ensure the editor is displayed after options are loaded
+                    onRendered(function() {
+                        editor.focus();
+                        editor.style.cssText = "width:100%; height:100%; padding:0; margin:0; box-sizing:border-box";
+                    });
+
+                    editor.addEventListener("change", function() {
+                        success(editor.value);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching Ridderhatt data:', error);
+                    cancel();
+                });
 
             return editor;
         }
