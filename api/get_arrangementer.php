@@ -1,38 +1,32 @@
 <?php
 require '../config.php';
 
-$response = array('success' => false, 'arrangementer' => array());
-
 $current_year = date("Y");
-$query = "SELECT a.*, 
-          s1.navn AS ssk1_navn, s2.navn AS ssk2_navn, s3.navn AS ssk3_navn, 
-          r1.navn AS ridder1_navn, r2.navn AS ridder2_navn, r3.navn AS ridder3_navn, 
-          st.navn AS sted_navn, st.adresse AS sted_adresse, 
-          at.type AS arrangementstype 
-          FROM arrangement a 
-          LEFT JOIN ssk s1 ON a.ssk1 = s1.id 
-          LEFT JOIN ssk s2 ON a.ssk2 = s2.id 
-          LEFT JOIN ssk s3 ON a.ssk3 = s3.id 
-          LEFT JOIN ridderhatt r1 ON a.ridder1 = r1.id 
-          LEFT JOIN ridderhatt r2 ON a.ridder2 = r2.id 
-          LEFT JOIN ridderhatt r3 ON a.ridder3 = r3.id 
-          LEFT JOIN steder st ON a.sted = st.id 
-          LEFT JOIN arrtype at ON a.arrtype = at.id 
-          WHERE YEAR(a.dato) = $current_year 
-          ORDER BY a.dato ASC";
 
-setlocale(LC_TIME, 'nb_NO.UTF-8');
+$result = $conn->query("SELECT arrangement.*, 
+    ssk1.navn AS ssk1_navn, ssk2.navn AS ssk2_navn, ssk3.navn AS ssk3_navn, 
+    ridder1.navn AS ridder1_navn, ridder2.navn AS ridder2_navn, ridder3.navn AS ridder3_navn,
+    steder.navn AS sted_navn, steder.adresse AS sted_adresse,
+    arrtype.type AS arrangementstype
+    FROM arrangement
+    LEFT JOIN ssk AS ssk1 ON arrangement.ssk1 = ssk1.id
+    LEFT JOIN ssk AS ssk2 ON arrangement.ssk2 = ssk2.id
+    LEFT JOIN ssk AS ssk3 ON arrangement.ssk3 = ssk3.id
+    LEFT JOIN ridderhatt AS ridder1 ON arrangement.ridder1 = ridder1.id
+    LEFT JOIN ridderhatt AS ridder2 ON arrangement.ridder2 = ridder2.id
+    LEFT JOIN ridderhatt AS ridder3 ON arrangement.ridder3 = ridder3.id
+    LEFT JOIN steder ON arrangement.sted = steder.id
+    LEFT JOIN arrtype ON arrangement.arrtype = arrtype.id
+    WHERE YEAR(arrangement.dato) = $current_year
+    ORDER BY arrangement.dato ASC");
 
-if ($result = $conn->query($query)) {
-    while ($row = $result->fetch_assoc()) {
-        $row['ukedag'] = strftime('%A', strtotime($row['dato']));
-        $response['arrangementer'][] = $row;
-    }
-    $response['success'] = true;
-} else {
-    $response['message'] = $conn->error;
+$arrangementer = [];
+
+while ($row = $result->fetch_assoc()) {
+    $row['ukedag'] = strftime('%A', strtotime($row['dato']));
+    $arrangementer[] = $row;
 }
 
 header('Content-Type: application/json');
-echo json_encode($response);
+echo json_encode(['success' => true, 'arrangementer' => $arrangementer]);
 ?>

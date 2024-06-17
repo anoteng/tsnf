@@ -12,11 +12,16 @@ $user_id = $_SESSION['user_id'];
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/5.2.7/css/tabulator.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/2.1.1/luxon.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/5.2.7/js/tabulator.min.js"></script>
+    <script>
+        var user_type = "<?php echo $user_type; ?>";
+        var user_id = "<?php echo $user_id; ?>";
+    </script>
     <script src="dashboard.js" defer></script>
 </head>
 <body>
 <div class="container">
     <?php
+    // Sjekk om brukeren er logget inn som admin
     if ($user_type == 'admin') {
         echo "<p><a href=\"admindash.php\">Gå til admindashboard</a></p>";
     }
