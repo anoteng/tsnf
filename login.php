@@ -11,31 +11,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = validateMagicLink($token);
 
     if ($email) {
-        // Sjekk hvilken tabell brukeren tilhører og hent user_id
+        // Sjekk hvilken tabell brukeren tilhører
         $user_type = "";
         $user_id = "";
-
-        $result = $conn->query("SELECT id FROM admins WHERE epost = '$email'");
-        if ($result->num_rows > 0) {
-            $user_type = "admin";
-            $user_id = $result->fetch_assoc()['id'];
-        } else {
-            $result = $conn->query("SELECT id FROM ssk WHERE epost = '$email'");
+        if ($result = $conn->query("SELECT id FROM admins WHERE epost = '$email'")) {
+            if ($result->num_rows > 0) {
+                $user_type = "admin";
+                $user_id = $result->fetch_assoc()['id'];
+            }
+        } elseif ($result = $conn->query("SELECT id FROM ssk WHERE epost = '$email'")) {
             if ($result->num_rows > 0) {
                 $user_type = "ssk";
                 $user_id = $result->fetch_assoc()['id'];
-            } else {
-                $result = $conn->query("SELECT id FROM ridderhatt WHERE epost = '$email'");
-                if ($result->num_rows > 0) {
-                    $user_type = "ridderhatt";
-                    $user_id = $result->fetch_assoc()['id'];
-                }
+            }
+        } elseif ($result = $conn->query("SELECT id FROM ridderhatt WHERE epost = '$email'")) {
+            if ($result->num_rows > 0) {
+                $user_type = "ridderhatt";
+                $user_id = $result->fetch_assoc()['id'];
             }
         }
 
-        if ($user_type && $user_id) {
+        if ($user_type) {
             // Start session and redirect user
-            session_start();
+
             $_SESSION['email'] = $email;
             $_SESSION['user_type'] = $user_type;
             $_SESSION['user_id'] = $user_id;
@@ -49,3 +47,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <h2>Logg inn</h2>
+    <form method="POST" action="login.php">
+        <div class="form-group">
+            <label for="email">E-postadresse</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Send magic link</button>
+    </form>
+</div>
+</body>
+</html>
