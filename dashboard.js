@@ -24,14 +24,55 @@ function createButton(cell, type, number) {
     return buttonHtml;
 }
 
-function assignUser(id, type, number) {
-    // Implement the logic to assign the user to the specific SSK or Ridderhatt role
-    console.log(`Assigning user to ${type}${number} for arrangement ${id}`);
+function assignUser(arrangementId, type, number) {
+    fetch('api/assign_user.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            arrangementId: arrangementId,
+            type: type,
+            number: number,
+            userId: userId
+        })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                location.reload(); // Reload the page to see the updated data
+            } else {
+                console.error('Error assigning user:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
 }
 
-function removeUser(id, type, number) {
-    // Implement the logic to remove the user from the specific SSK or Ridderhatt role
-    console.log(`Removing user from ${type}${number} for arrangement ${id}`);
+function removeUser(arrangementId, type, number) {
+    fetch('api/remove_user.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            arrangementId: arrangementId,
+            type: type,
+            number: number
+        })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                location.reload(); // Reload the page to see the updated data
+            } else {
+                console.error('Error removing user:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
 }
 
 function formatDate(value) {

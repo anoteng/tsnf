@@ -14,20 +14,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Sjekk hvilken tabell brukeren tilhører
         $user_type = "";
         $user_id = "";
-        if ($result = $conn->query("SELECT id FROM admins WHERE epost = '$email'")) {
+        error_log("Email: " . print_r($email, true));
+        // Sjekk admins
+        $sql = "SELECT id FROM admins WHERE epost = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            error_log("Admin-User found: " . print_r($user, true));
+            $user_type = "admin";
+            $user_id = $user['id'];
+        }
+
+        // Sjekk ssk
+        if (empty($user_type)) {
+            $sql = "SELECT id FROM ssk WHERE epost = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $result = $stmt->get_result();
             if ($result->num_rows > 0) {
-                $user_type = "admin";
-                $user_id = $result->fetch_assoc()['id'];
-            }
-        } elseif ($result = $conn->query("SELECT id FROM ssk WHERE epost = '$email'")) {
-            if ($result->num_rows > 0) {
+                $user = $result->fetch_assoc();
+                error_log("SSK-User found: " . print_r($user, true));
                 $user_type = "ssk";
-                $user_id = $result->fetch_assoc()['id'];
+                $user_id = $user['id'];
             }
-        } elseif ($result = $conn->query("SELECT id FROM ridderhatt WHERE epost = '$email'")) {
+        }
+
+        // Sjekk ridderhatt
+        if (empty($user_type)) {
+            $sql = "SELECT id FROM ridderhatt WHERE epost = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $result = $stmt->get_result();
             if ($result->num_rows > 0) {
+                $user = $result->fetch_assoc();
+                error_log("Ridderhatt-User found: " . print_r($user, true));
                 $user_type = "ridderhatt";
-                $user_id = $result->fetch_assoc()['id'];
+                $user_id = $user['id'];
             }
         }
 
