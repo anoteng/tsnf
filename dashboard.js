@@ -2,8 +2,10 @@
 const bodyElement = document.querySelector('body');
 const userType = bodyElement.getAttribute('data-user-type');
 const userId = bodyElement.getAttribute('data-user-id');
+const userName = bodyElement.getAttribute('data-user-name');
 const isAdmin = userType === 'admin';
 
+console.log(userType + ' ' + userId);
 function createButton(cell, type, number) {
     let value = cell.getValue() || '';
     let id = cell.getRow().getData().id;
@@ -11,14 +13,14 @@ function createButton(cell, type, number) {
 
     if (value) {
         buttonHtml += `${value} `;
-        if (isAdmin) {
+        if (isAdmin || (userType === 'ridderhatt' && type === 'ridder' && value === userName) || (userType === 'ssk' && type === 'ssk' && value === userName)) {
             buttonHtml += `<button class="btn-small" onclick="removeUser(${id}, '${type}', ${number})">Fjern</button>`;
         }
     } else {
-        if (isAdmin) {
+        if (isAdmin || (type === 'ridder' && userType === 'ridderhatt') || (type === 'ssk' && userType === 'ssk')) {
             buttonHtml += `<button class="btn-small" onclick="assignUser(${id}, '${type}', ${number})">Sett opp meg</button>`;
         } else {
-            buttonHtml += 'Ingen satt opp';
+            buttonHtml += 'Ledig';
         }
     }
     return buttonHtml;
@@ -75,6 +77,7 @@ function removeUser(arrangementId, type, number) {
         });
 }
 
+
 function formatDate(value) {
     if (!value) return '';
     let date = luxon.DateTime.fromISO(value);
@@ -98,6 +101,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.error('Error fetching data:', data.error);
                 return;
             }
+            const userType = document.body.dataset.userType;
+            const isAdmin = userType === 'admin';
 
             // Formatere dato og tid før de sendes til Tabulator
             data.forEach(item => {
@@ -106,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 item.tid_til = formatTime(item.tid_til);
             });
 
-            var table = new Tabulator("#arrangementTable", {
+            const table = new Tabulator("#arrangementTable", {
                 data: data,
                 layout: "fitDataStretch",
                 responsiveLayout: "collapse",
@@ -134,8 +139,12 @@ document.addEventListener("DOMContentLoaded", function() {
                     { title: "Ridderhatt 1", field: "ridder1_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ridder', 1) },
                     { title: "Ridderhatt 2", field: "ridder2_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ridder', 2) },
                     { title: "Ridderhatt 3", field: "ridder3_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ridder', 3) },
-                    { title: "Handling", formatter: (cell) => `<button class="edit-arrangement" data-id="${cell.getRow().getData().id}">Rediger</button>` }
-                ]
+
+                ],
+                // Legg til handling-kolonnen kun hvis brukeren er admin
+                if (isAdmin) {
+                    columns.push({ title: "Handling", formatter: (cell) => `<button class="edit-arrangement" data-id="${cell.getRow().getData().id}">Rediger</button>` });
+                }
             });
 
             document.querySelectorAll('.edit-arrangement').forEach(button => {

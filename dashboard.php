@@ -25,9 +25,9 @@ $user_id = $_SESSION['user_id'];
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/2.1.1/luxon.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/5.2.7/js/tabulator.min.js"></script>
-    <script src="dashboard_modified.js" defer></script>
+    <script src="dashboard.js" defer></script>
 </head>
-<body data-user-type="<?php echo $user_type; ?>" data-user-id="<?php echo $user_id; ?>">
+<body data-user-type="<?php echo $user_type; ?>" data-user-id="<?php echo $user_id; ?>" data-user-name="<?php echo $_SESSION['user_name']; ?>">
 <div class="container">
     <?php
     if ($user_type == 'admin') {

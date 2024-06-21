@@ -14,9 +14,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Sjekk hvilken tabell brukeren tilhører
         $user_type = "";
         $user_id = "";
+        $user_name = "";
         error_log("Email: " . print_r($email, true));
         // Sjekk admins
-        $sql = "SELECT id FROM admins WHERE epost = ?";
+        $sql = "SELECT id, navn FROM admins WHERE epost = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -26,11 +27,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             error_log("Admin-User found: " . print_r($user, true));
             $user_type = "admin";
             $user_id = $user['id'];
+            $user_name = $user['navn'];
         }
 
         // Sjekk ssk
         if (empty($user_type)) {
-            $sql = "SELECT id FROM ssk WHERE epost = ?";
+            $sql = "SELECT id, navn FROM ssk WHERE epost = ?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("s", $email);
             $stmt->execute();
@@ -40,12 +42,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 error_log("SSK-User found: " . print_r($user, true));
                 $user_type = "ssk";
                 $user_id = $user['id'];
+                $user_name = $user['navn'];
             }
         }
 
         // Sjekk ridderhatt
         if (empty($user_type)) {
-            $sql = "SELECT id FROM ridderhatt WHERE epost = ?";
+            $sql = "SELECT id, navn FROM ridderhatt WHERE epost = ?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("s", $email);
             $stmt->execute();
@@ -55,6 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 error_log("Ridderhatt-User found: " . print_r($user, true));
                 $user_type = "ridderhatt";
                 $user_id = $user['id'];
+                $user_name = $user['navn'];
             }
         }
 
@@ -64,6 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['email'] = $email;
             $_SESSION['user_type'] = $user_type;
             $_SESSION['user_id'] = $user_id;
+            $_SESSION['user_name'] = $user_name;
             header("Location: dashboard.php");
             exit();
         } else {
