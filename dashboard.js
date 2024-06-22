@@ -8,7 +8,11 @@ const isAdmin = userType === 'admin';
 console.log(userType + ' ' + userId);
 function createButton(cell, type, number) {
     let value = cell.getValue() || '';
-    let id = cell.getRow().getData().id;
+    //let id = cell.getRow().getData().id;
+    const row = cell.getRow();
+    const id = row.getData().id
+    const max_ssk = cell.getData().max_ssk
+    console.log(max_ssk + ' - ' + type + ' - ' + number)
     let buttonHtml = '';
 
     if (value) {
@@ -16,6 +20,9 @@ function createButton(cell, type, number) {
         if (isAdmin || (userType === 'ridderhatt' && type === 'ridder' && value === userName) || (userType === 'ssk' && type === 'ssk' && value === userName)) {
             buttonHtml += `<button class="btn-small" onclick="removeUser(${id}, '${type}', ${number})">❌</button>`;
         }
+    } else if (max_ssk < number && type === 'ssk') {
+        console.log(`${id} - ${max_ssk} > ${number}`)
+        buttonHtml = '';
     } else {
         if (isAdmin || (type === 'ridder' && userType === 'ridderhatt') || (type === 'ssk' && userType === 'ssk')) {
             buttonHtml += `<button class="btn-small" onclick="assignUser(${id}, '${type}', ${number})">Sett opp meg</button>`;

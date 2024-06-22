@@ -26,7 +26,8 @@ $query = "SELECT
             r1.navn AS ridder1_navn,
             r2.navn AS ridder2_navn,
             r3.navn AS ridder3_navn,
-            a.kommentar AS kommentar
+            a.kommentar AS kommentar,
+            a.max_ssk AS max_ssk
           FROM arrangement a
           JOIN steder s ON a.sted = s.id
           JOIN kommune k ON s.kommune = k.id
