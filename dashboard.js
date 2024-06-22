@@ -9,10 +9,10 @@ console.log(userType + ' ' + userId);
 function createButton(cell, type, number) {
     let value = cell.getValue() || '';
     //let id = cell.getRow().getData().id;
-    const row = cell.getRow();
-    const id = row.getData().id
+    //const row = cell.getRow();
+    const id = cell.getData().id
     const max_ssk = cell.getData().max_ssk
-    console.log(max_ssk + ' - ' + type + ' - ' + number)
+    //console.log(max_ssk + ' - ' + type + ' - ' + number)
     let buttonHtml = '';
 
     if (value) {
@@ -21,7 +21,7 @@ function createButton(cell, type, number) {
             buttonHtml += `<button class="btn-small" onclick="removeUser(${id}, '${type}', ${number})">❌</button>`;
         }
     } else if (max_ssk < number && type === 'ssk') {
-        console.log(`${id} - ${max_ssk} > ${number}`)
+        //console.log(`${id} - ${max_ssk} > ${number}`)
         buttonHtml = '';
     } else {
         if (isAdmin || (type === 'ridder' && userType === 'ridderhatt') || (type === 'ssk' && userType === 'ssk')) {
@@ -118,9 +118,35 @@ document.addEventListener("DOMContentLoaded", function() {
                 item.tid_til = formatTime(item.tid_til);
             });
 
+            const columns = [
+                { title: "Dato", field: "dato", sorter: "date", headerFilter:"input", sorterParams: { format: "yyyy-MM-dd" }, hozAlign: "center" },
+                { title: "Ukedag", field: "dato", sorter: "date", headerFilter:"input", sorterParams: { format: "yyyy-MM-dd" }, hozAlign: "center",
+                    formatter: (cell) => {
+                        let value = cell.getValue();
+                        if (!value) return '';
+                        let date = luxon.DateTime.fromFormat(value, 'yyyy-MM-dd');
+                        return date.isValid ? date.setLocale('no').toFormat('cccc') : value;
+                    }},
+                { title: "Sted", field: "sted_navn", sorter: "string", headerFilter:"input", hozAlign: "center", formatter: (cell) => `<a href="https://maps.google.com/?q=${cell.getRow().getData().adresse}" target="_blank">${cell.getValue()}</a>` },
+                { title: "Arrangementstype", field: "arrangementstype_navn", headerFilter:"input", sorter: "string", hozAlign: "center", formatter: "textarea"},
+                { title: "Tid fra", field: "tid_fra", sorter: "time", headerFilter:true, headerFilterFunc:">=", headerFilterPlaceholder:"Start etter", sorterParams: { format: "HH:mm" }, hozAlign: "center" },
+                { title: "Tid til", field: "tid_til", sorter: "time", headerFilter:true, headerFilterFunc:"<=", headerFilterPlaceholder:"Ferdig senest", sorterParams: { format: "HH:mm" }, hozAlign: "center" },
+                { title: "SSK1", field: "ssk1_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ssk', 1) },
+                { title: "SSK2", field: "ssk2_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ssk', 2) },
+                { title: "SSK3", field: "ssk3_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ssk', 3) },
+                { title: "Ridderhatt 1", field: "ridder1_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ridder', 1) },
+                { title: "Ridderhatt 2", field: "ridder2_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ridder', 2) },
+                { title: "Ridderhatt 3", field: "ridder3_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ridder', 3) },
+                { title: "Kommentar", field: "kommentar", sorter: "string", hozAlign: "center", formatter: "textarea"},
+
+            ]
+            if (isAdmin) {
+                columns.push({ title: "Handling", formatter: (cell) => `<button class="edit-arrangement" data-id="${cell.getRow().getData().id}">Rediger</button>` });
+            }
+
             const table = new Tabulator("#arrangementTable", {
                 data: data,
-                layout: "fitDataStretch",
+                layout: "fitColumns",
                 height: "auto",
                 responsiveLayout: "collapse",
                 pagination: "local",
@@ -128,32 +154,31 @@ document.addEventListener("DOMContentLoaded", function() {
                 initialSort: [
                     { column: "dato", dir: "asc" } // Initial sort on the date column
                 ],
-                columns: [
-                    { title: "Dato", field: "dato", sorter: "date", sorterParams: { format: "yyyy-MM-dd" }, hozAlign: "center" },
-                    { title: "Ukedag", field: "dato", sorter: "date", sorterParams: { format: "yyyy-MM-dd" }, hozAlign: "center",
-                        formatter: (cell) => {
-                            let value = cell.getValue();
-                            if (!value) return '';
-                            let date = luxon.DateTime.fromFormat(value, 'yyyy-MM-dd');
-                            return date.isValid ? date.setLocale('no').toFormat('cccc') : value;
-                        }},
-                    { title: "Sted", field: "sted_navn", sorter: "string", hozAlign: "center", formatter: (cell) => `<a href="https://maps.google.com/?q=${cell.getRow().getData().adresse}" target="_blank">${cell.getValue()}</a>` },
-                    { title: "Arrangementstype", field: "arrangementstype_navn", sorter: "string", hozAlign: "center", formatter: "textarea"},
-                    { title: "Tid fra", field: "tid_fra", sorter: "time", sorterParams: { format: "HH:mm" }, hozAlign: "center" },
-                    { title: "Tid til", field: "tid_til", sorter: "time", sorterParams: { format: "HH:mm" }, hozAlign: "center" },
-                    { title: "SSK1", field: "ssk1_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ssk', 1) },
-                    { title: "SSK2", field: "ssk2_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ssk', 2) },
-                    { title: "SSK3", field: "ssk3_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ssk', 3) },
-                    { title: "Ridderhatt 1", field: "ridder1_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ridder', 1) },
-                    { title: "Ridderhatt 2", field: "ridder2_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ridder', 2) },
-                    { title: "Ridderhatt 3", field: "ridder3_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ridder', 3) },
-                    { title: "Kommentar", field: "kommentar", sorter: "string", hozAlign: "center", formatter: "textarea"},
-
-                ],
+                columns: columns
+                // columns: [
+                //     { title: "Dato", field: "dato", sorter: "date", sorterParams: { format: "yyyy-MM-dd" }, hozAlign: "center" },
+                //     { title: "Ukedag", field: "dato", sorter: "date", sorterParams: { format: "yyyy-MM-dd" }, hozAlign: "center",
+                //         formatter: (cell) => {
+                //             let value = cell.getValue();
+                //             if (!value) return '';
+                //             let date = luxon.DateTime.fromFormat(value, 'yyyy-MM-dd');
+                //             return date.isValid ? date.setLocale('no').toFormat('cccc') : value;
+                //         }},
+                //     { title: "Sted", field: "sted_navn", sorter: "string", hozAlign: "center", formatter: (cell) => `<a href="https://maps.google.com/?q=${cell.getRow().getData().adresse}" target="_blank">${cell.getValue()}</a>` },
+                //     { title: "Arrangementstype", field: "arrangementstype_navn", sorter: "string", hozAlign: "center", formatter: "textarea"},
+                //     { title: "Tid fra", field: "tid_fra", sorter: "time", sorterParams: { format: "HH:mm" }, hozAlign: "center" },
+                //     { title: "Tid til", field: "tid_til", sorter: "time", sorterParams: { format: "HH:mm" }, hozAlign: "center" },
+                //     { title: "SSK1", field: "ssk1_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ssk', 1) },
+                //     { title: "SSK2", field: "ssk2_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ssk', 2) },
+                //     { title: "SSK3", field: "ssk3_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ssk', 3) },
+                //     { title: "Ridderhatt 1", field: "ridder1_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ridder', 1) },
+                //     { title: "Ridderhatt 2", field: "ridder2_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ridder', 2) },
+                //     { title: "Ridderhatt 3", field: "ridder3_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ridder', 3) },
+                //     { title: "Kommentar", field: "kommentar", sorter: "string", hozAlign: "center", formatter: "textarea"},
+                //
+                // ],
                 // Legg til handling-kolonnen kun hvis brukeren er admin
-                if (isAdmin) {
-                    columns.push({ title: "Handling", formatter: (cell) => `<button class="edit-arrangement" data-id="${cell.getRow().getData().id}">Rediger</button>` });
-                }
+
             });
 
             document.querySelectorAll('.edit-arrangement').forEach(button => {
