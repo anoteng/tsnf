@@ -14,7 +14,7 @@ function createButton(cell, type, number) {
     if (value) {
         buttonHtml += `${value} `;
         if (isAdmin || (userType === 'ridderhatt' && type === 'ridder' && value === userName) || (userType === 'ssk' && type === 'ssk' && value === userName)) {
-            buttonHtml += `<button class="btn-small" onclick="removeUser(${id}, '${type}', ${number})">Fjern</button>`;
+            buttonHtml += `<button class="btn-small" onclick="removeUser(${id}, '${type}', ${number})">❌</button>`;
         }
     } else {
         if (isAdmin || (type === 'ridder' && userType === 'ridderhatt') || (type === 'ssk' && userType === 'ssk')) {
@@ -114,6 +114,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const table = new Tabulator("#arrangementTable", {
                 data: data,
                 layout: "fitDataStretch",
+                height: "auto",
                 responsiveLayout: "collapse",
                 pagination: "local",
                 paginationSize: 10,
@@ -130,7 +131,7 @@ document.addEventListener("DOMContentLoaded", function() {
                             return date.isValid ? date.setLocale('no').toFormat('cccc') : value;
                         }},
                     { title: "Sted", field: "sted_navn", sorter: "string", hozAlign: "center", formatter: (cell) => `<a href="https://maps.google.com/?q=${cell.getRow().getData().adresse}" target="_blank">${cell.getValue()}</a>` },
-                    { title: "Arrangementstype", field: "arrangementstype_navn", sorter: "string", hozAlign: "center" },
+                    { title: "Arrangementstype", field: "arrangementstype_navn", sorter: "string", hozAlign: "center", formatter: "textarea"},
                     { title: "Tid fra", field: "tid_fra", sorter: "time", sorterParams: { format: "HH:mm" }, hozAlign: "center" },
                     { title: "Tid til", field: "tid_til", sorter: "time", sorterParams: { format: "HH:mm" }, hozAlign: "center" },
                     { title: "SSK1", field: "ssk1_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ssk', 1) },
@@ -139,6 +140,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     { title: "Ridderhatt 1", field: "ridder1_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ridder', 1) },
                     { title: "Ridderhatt 2", field: "ridder2_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ridder', 2) },
                     { title: "Ridderhatt 3", field: "ridder3_navn", sorter: "string", hozAlign: "center", formatter: (cell) => createButton(cell, 'ridder', 3) },
+                    { title: "Kommentar", field: "kommentar", sorter: "string", hozAlign: "center", formatter: "textarea"},
 
                 ],
                 // Legg til handling-kolonnen kun hvis brukeren er admin
@@ -156,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 });
             });
 
-            document.getElementById('closeModalBtn').addEventListener('click', function() {
+            document.getElementById('editModalClose').addEventListener('click', function() {
                 document.getElementById('editModal').style.display = 'none';
             });
 
