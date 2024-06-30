@@ -1,8 +1,30 @@
 <?php
-session_start();
 require 'config.php';
+
+
+// Sett tidsgrensen for inaktivitet (i sekunder)
+$inactive = 604800; // 1 uke
+
+if (!isset($_SESSION['user_type'])) {
+    // Brukeren er ikke innlogget, videresend til index.php
+    header("Location: index.php");
+    exit;
+}
 $user_type = $_SESSION['user_type'];
 $user_id = $_SESSION['user_id'];
+// Sjekk når sist aktivitet skjedde
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) > $inactive) {
+    // Sesjonen har utløpt pga inaktivitet, ødelegg den og videresend til index.php
+    session_unset(); // Fjern alle sesjonsvariabler
+    session_destroy(); // Ødelegg sesjonen
+    header("Location: index.php");
+    exit;
+}
+
+// Oppdater sist aktivitetstidspunkt
+$_SESSION['last_activity'] = time();
+
+// Resten av dashboard.php-koden
 ?>
 <!DOCTYPE html>
 <html lang="no">
@@ -11,24 +33,12 @@ $user_id = $_SESSION['user_id'];
     <title>Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/5.2.7/css/tabulator.min.css">
     <link rel="stylesheet" href="style.css">
-<!--    <style>
-        .tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-title {
-            white-space: nowrap;
-        }
-        .edit-button, .assign-button, .remove-button {
-            padding: 5px 10px;
-            font-size: 0.8em;
-        }
-        #arrangementTable {
-            width: 90%;
-            margin: auto;
-        }
-    </style>-->
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/2.1.1/luxon.min.js"></script>
-<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/5.2.7/js/tabulator.min.js"></script>-->
+
     <link href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator.min.css" rel="stylesheet">
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script>
-    <script src="dashboard_modified.js" defer></script>
+    <script src="dashboard.js" defer></script>
     <script src="editModal.js" defer></script>
 </head>
 <body data-user-type="<?php echo $user_type; ?>" data-user-id="<?php echo $user_id; ?>" data-user-name="<?php echo $_SESSION['user_name']; ?>">
@@ -39,7 +49,7 @@ $user_id = $_SESSION['user_id'];
     }
     ?>
     <h1>Arrangementer</h1>
-    <button id="filterLedige" class="btn btn-secondary">Vis ledige vakter</button>
+<!--    <button id="filterLedige" class="btn btn-secondary">Vis ledige vakter</button>-->
     <button id="filterMine" class="btn btn-secondary">Vis mine vakter</button>
     <button id="clearFilters" class="btn btn-secondary">Fjern filtre</button>
 
