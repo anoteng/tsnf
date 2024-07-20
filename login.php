@@ -6,6 +6,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     createMagicLink($email);
     echo "<p>En innloggingslenke ble sendt til epostadressen din. Husk at det bare fungerer med epostadressen du er registrert med hos Norges sopp- og nyttevekstforening.</p>";
+    echo "<p>Det kan ta noen minutter før eposten kommer. Når eposten kommer kan du klikke på lenken eller lime inn adressen i nettleseren din.</p>";
 } elseif (isset($_GET['token'])) {
     $token = $_GET['token'];
     $email = validateMagicLink($token);
@@ -92,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <h2>Logg inn</h2>
     <form method="POST" action="login.php">
         <div class="form-group">
-            <label for="email">E-postadresse</label>
+            <label for="email">E-postadresse (den du er registrert hos Norges sopp- og nyttevekstforbund med)</label>
             <input type="email" class="form-control" id="email" name="email" required>
         </div>
         <button type="submit" class="btn btn-primary">Send innloggingslenke</button>
