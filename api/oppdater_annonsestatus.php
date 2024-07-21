@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of TSNF Vaktliste.
  *
@@ -29,6 +30,12 @@ if (!isset($_SESSION['email'])) {
     echo json_encode(["message" => "Unauthorized"]);
     exit();
 }
+
+header("Content-Type: application/json");
+
+require '../config.php';
+
+
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method == 'POST') {
