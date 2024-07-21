@@ -1,6 +1,12 @@
 <?php
 require '../functions.php';  // Sørg for riktig sti til funksjonsfilen
+require '../auth.php';
 
+if (!isset($_SESSION['email'])) {
+    http_response_code(401);
+    echo json_encode(["message" => "Unauthorized"]);
+    exit();
+}
 // Sjekk for POST request
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Hente rå POST data og dekode JSON

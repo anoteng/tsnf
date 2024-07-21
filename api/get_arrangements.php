@@ -1,6 +1,12 @@
 <?php
 require '../config.php';
+require '../auth.php';
 
+if (!isset($_SESSION['email'])) {
+    http_response_code(401);
+    echo json_encode(["message" => "Unauthorized"]);
+    exit();
+}
 header('Content-Type: application/json');
 
 $query = "SELECT 

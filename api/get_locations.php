@@ -1,6 +1,12 @@
 <?php
 require '../config.php';
+require '../auth.php';
 
+if (!isset($_SESSION['email'])) {
+    http_response_code(401);
+    echo json_encode(["message" => "Unauthorized"]);
+    exit();
+}
 $kommune_id = isset($_GET['kommune_id']) ? $_GET['kommune_id'] : '';
 
 if ($kommune_id) {

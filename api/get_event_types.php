@@ -1,6 +1,12 @@
 <?php
 require '../config.php';
+require '../auth.php';
 
+if (!isset($_SESSION['email'])) {
+    http_response_code(401);
+    echo json_encode(["message" => "Unauthorized"]);
+    exit();
+}
 // Hent arrangementstyper fra databasen
 $result = $conn->query("SELECT id, type FROM arrtype");
 

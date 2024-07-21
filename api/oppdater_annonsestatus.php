@@ -2,7 +2,13 @@
 header("Content-Type: application/json");
 
 require '../config.php';
+require '../auth.php';
 
+if (!isset($_SESSION['email'])) {
+    http_response_code(401);
+    echo json_encode(["message" => "Unauthorized"]);
+    exit();
+}
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method == 'POST') {

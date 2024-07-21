@@ -1,6 +1,12 @@
 <?php
 require '../config.php';
+require '../auth.php';
 
+if (!isset($_SESSION['email'])) {
+    http_response_code(401);
+    echo json_encode(["message" => "Unauthorized"]);
+    exit();
+}
 // Sjekk om forespørselen er POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);

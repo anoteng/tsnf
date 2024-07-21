@@ -1,7 +1,13 @@
 <?php
 // saveChanges.php
 require_once '../config.php'; // Inkluderer databasekonfigurasjoner
+require '../auth.php';
 
+if (!isset($_SESSION['email'])) {
+    http_response_code(401);
+    echo json_encode(["message" => "Unauthorized"]);
+    exit();
+}
 // Oppdaterer arrangementsdata
 function updateArrangement($conn, $data) {
     $sql = "UPDATE arrangementer SET dato=?, tid_fra=?, tid_til=?, sted=?, arrtype=?, ssk1=?, ssk2=?, ssk3=?, ridder1=?, ridder2=?, ridder3=? WHERE id=?";

@@ -1,6 +1,12 @@
 <?php
 require '../config.php'; // Inkluder din databasekoblingsfil
+require '../auth.php';
 
+if (!isset($_SESSION['email'])) {
+    http_response_code(401);
+    echo json_encode(["message" => "Unauthorized"]);
+    exit();
+}
 // Hent data fra AJAX-forespørselen
 $input = json_decode(file_get_contents('php://input'), true);
 $arrangementId = $input['arrangementId'];

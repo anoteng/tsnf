@@ -1,6 +1,12 @@
 <?php
 require_once '../config.php'; // Inkluderer databasekonfigurasjoner
+require '../auth.php';
 
+if (!isset($_SESSION['email'])) {
+    http_response_code(401);
+    echo json_encode(["message" => "Unauthorized"]);
+    exit();
+}
 function getDropdownData($conn, $table, $filter = null) {
     $sql = "SELECT * FROM " . $table;
     if ($filter) {
