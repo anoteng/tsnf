@@ -1,0 +1,14 @@
+# Changelog
+
+## [2024-06-30]
+
+- Initial release.
+
+## [2024-07-20]
+
+- Admins can toggle status on "Annonsert FB" and "Annonsert kalender"
+
+## [2024-07-21]
+
+- Added footer with copyright info and changelog link.
+- Implemented token-based authentication system and API security.

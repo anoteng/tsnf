@@ -1,4 +1,24 @@
 <?php
+/*
+ * This file is part of TSNF Vaktliste.
+ *
+ * TSNF Vaktliste is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * TSNF Vaktliste is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with TSNF Vaktliste. If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+
+
 require 'config.php';
 require 'functions.php';
 
@@ -16,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $user_type = "";
         $user_id = "";
         $user_name = "";
-        error_log("Email: " . print_r($email, true));
+
         // Sjekk admins
         $sql = "SELECT id, navn FROM admins WHERE epost = ?";
         $stmt = $conn->prepare($sql);
@@ -25,7 +45,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $result = $stmt->get_result();
         if ($result->num_rows > 0) {
             $user = $result->fetch_assoc();
-            error_log("Admin-User found: " . print_r($user, true));
             $user_type = "admin";
             $user_id = $user['id'];
             $user_name = $user['navn'];
@@ -40,7 +59,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $result = $stmt->get_result();
             if ($result->num_rows > 0) {
                 $user = $result->fetch_assoc();
-                error_log("SSK-User found: " . print_r($user, true));
                 $user_type = "ssk";
                 $user_id = $user['id'];
                 $user_name = $user['navn'];
@@ -56,7 +74,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $result = $stmt->get_result();
             if ($result->num_rows > 0) {
                 $user = $result->fetch_assoc();
-                error_log("Ridderhatt-User found: " . print_r($user, true));
                 $user_type = "ridderhatt";
                 $user_id = $user['id'];
                 $user_name = $user['navn'];
@@ -64,8 +81,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         if ($user_type) {
-            // Start session and redirect user
+            // Lagre token i en cookie
+            $expiry = strtotime('+30 days'); // Token utløper etter 30 dager
+            setcookie('login_token', $token, $expiry, '/', '', false, true);
 
+            // Start session and set session variables
             $_SESSION['email'] = $email;
             $_SESSION['user_type'] = $user_type;
             $_SESSION['user_id'] = $user_id;
