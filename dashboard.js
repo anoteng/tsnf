@@ -203,8 +203,15 @@ document.addEventListener("DOMContentLoaded", function() {
                     mutator: boolMutator,
                     cellClick: function (e, cell) {
                         if (isAdmin) {
-                            console.log(cell.getValue())
-                            const newValue = !cell.getValue();
+                            const currentValue = cell.getValue();
+                            const newValue = !currentValue;
+
+                            if (currentValue && !newValue) {
+                                if (!confirm("Er du sikker på at du vil endre Annonsert FB tilbake til 'ikke annonsert'?")) {
+                                    return;
+                                }
+                            }
+
                             cell.setValue(newValue);
                             updateAnnonsertStatus(cell.getRow().getData().id, 'annonsert_fb', newValue);
                         }
@@ -217,7 +224,15 @@ document.addEventListener("DOMContentLoaded", function() {
                     mutator: boolMutator,
                     cellClick: function (e, cell) {
                         if (isAdmin) {
-                            const newValue = !cell.getValue();
+                            const currentValue = cell.getValue();
+                            const newValue = !currentValue;
+
+                            if (currentValue && !newValue) {
+                                if (!confirm("Er du sikker på at du vil endre Annonsert Kalender tilbake til 'ikke annonsert'?")) {
+                                    return;
+                                }
+                            }
+
                             cell.setValue(newValue);
                             updateAnnonsertStatus(cell.getRow().getData().id, 'annonsert_kalender', newValue);
                         }
