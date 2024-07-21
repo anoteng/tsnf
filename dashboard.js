@@ -32,7 +32,13 @@ function createButton(cell, type, number) {
     }
     return buttonHtml;
 }
-
+function boolMutator(value) {
+    if (value == 0){
+        return false;
+    }else{
+        return true;
+    }
+}
 function assignUser(arrangementId, type, number) {
 
     fetch('api/assign_user.php', {
@@ -60,7 +66,25 @@ function assignUser(arrangementId, type, number) {
             console.error('Error:', error);
         });
 }
-
+function updateAnnonsertStatus(id, field, value) {
+    fetch('api/oppdater_annonsestatus.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            id: id,
+            [field]: value
+        })
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.message);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
 function sendCalendarInvitation(arrangementId, type, number, userId) {
     fetch('api/send_invitation.php', {
         method: 'POST',
@@ -172,8 +196,48 @@ document.addEventListener("DOMContentLoaded", function() {
             if (isAdmin) {
                 // columns.push({ title: "Handling", formatter: (cell) => `<button class="edit-arrangement" data-id="${cell.getRow().getData().id}">Rediger</button>` });
                 columns.push({ title: "Handling", formatter: (cell) => createEditButton(cell)});
-                columns.push({ title: "Annonsert FB",  field: "annonsert_fb", formatter:"tickCross"});
-                columns.push({ title: "Annonsert Kalender", field: "annonsert_kalender", formatter:"tickCross" });
+                columns.push({
+                    title: "Annonsert FB",
+                    field: "annonsert_fb",
+                    formatter: "tickCross",
+                    mutator: boolMutator,
+                    cellClick: function (e, cell) {
+                        if (isAdmin) {
+                            const currentValue = cell.getValue();
+                            const newValue = !currentValue;
+
+                            if (currentValue && !newValue) {
+                                if (!confirm("Er du sikker på at du vil endre Annonsert FB tilbake til 'ikke annonsert'?")) {
+                                    return;
+                                }
+                            }
+
+                            cell.setValue(newValue);
+                            updateAnnonsertStatus(cell.getRow().getData().id, 'annonsert_fb', newValue);
+                        }
+                    }
+                });
+                columns.push({
+                    title: "Annonsert Kalender",
+                    field: "annonsert_kalender",
+                    formatter: "tickCross",
+                    mutator: boolMutator,
+                    cellClick: function (e, cell) {
+                        if (isAdmin) {
+                            const currentValue = cell.getValue();
+                            const newValue = !currentValue;
+
+                            if (currentValue && !newValue) {
+                                if (!confirm("Er du sikker på at du vil endre Annonsert Kalender tilbake til 'ikke annonsert'?")) {
+                                    return;
+                                }
+                            }
+
+                            cell.setValue(newValue);
+                            updateAnnonsertStatus(cell.getRow().getData().id, 'annonsert_kalender', newValue);
+                        }
+                    }
+                });
             }
 
             const table = new Tabulator("#arrangementTable", {
