@@ -172,6 +172,9 @@ function formatTime(value) {
 
 document.addEventListener("DOMContentLoaded", function() {
     console.log("Document ready. Initializing DataTable...");
+    document.getElementById('logout').addEventListener('click', function() {
+        window.location.href = 'logout.php';
+    });
 
     fetch('api/get_arrangements.php')
         .then(response => response.json())

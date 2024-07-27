@@ -17,8 +17,6 @@
  *
  */
 
-
-
 require 'config.php';
 require 'auth.php';
 
@@ -73,6 +71,7 @@ $_SESSION['last_activity'] = time();
     <button id="clearFilters" class="btn btn-secondary">Fjern filtre</button>
 
     <div id="arrangementTable"></div>
+    <button id="logout" class="btn btn-danger">Logg ut</button>
 </div>
 
 <!-- Edit Modal -->

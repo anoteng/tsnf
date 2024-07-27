@@ -17,3 +17,7 @@
 
 - Added logging to all write APIs
 - Login sessions are valid for 30 days if user allows cookies
+
+## [2024-07-27]
+
+- Allow logout
