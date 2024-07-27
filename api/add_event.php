@@ -21,12 +21,18 @@
 
 require '../config.php';
 require '../auth.php';
+require '../log_function.php';
 
 if (!isset($_SESSION['email'])) {
     http_response_code(401);
     echo json_encode(["message" => "Unauthorized"]);
     exit();
 }
+$method = $_SERVER['REQUEST_METHOD'];
+$endpoint = $_SERVER['REQUEST_URI'];
+$user_name = $_SESSION['user_name'];
+$request_body = file_get_contents('php://input');
+
 // Sjekk om forespørselen er POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -54,6 +60,8 @@ $stmt->bind_param('ssssss', $dato, $tid_fra, $tid_til, $sted, $arrtype, $komment
 
 if ($stmt->execute()) {
     echo "Arrangement lagt til";
+    // Log API call
+    logApiCall($conn, $endpoint, $method, $user_name, $request_body);
 } else {
     http_response_code(500);
     echo "Kunne ikke legge til arrangement: " . $stmt->error;

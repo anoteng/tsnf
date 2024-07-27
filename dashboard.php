@@ -20,7 +20,7 @@
 
 
 require 'config.php';
-
+require 'auth.php';
 
 // Sett tidsgrensen for inaktivitet (i sekunder)
 $inactive = 604800; // 1 uke
@@ -44,7 +44,6 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
 // Oppdater sist aktivitetstidspunkt
 $_SESSION['last_activity'] = time();
 
-// Resten av dashboard.php-koden
 ?>
 <!DOCTYPE html>
 <html lang="no">

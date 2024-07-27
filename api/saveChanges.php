@@ -20,12 +20,17 @@
 // saveChanges.php
 require_once '../config.php'; // Inkluderer databasekonfigurasjoner
 require '../auth.php';
+require '../log_function.php';
 
 if (!isset($_SESSION['email'])) {
     http_response_code(401);
     echo json_encode(["message" => "Unauthorized"]);
     exit();
 }
+$method = $_SERVER['REQUEST_METHOD'];
+$endpoint = $_SERVER['REQUEST_URI'];
+$user_name = $_SESSION['user_name'];
+$request_body = file_get_contents('php://input');
 // Oppdaterer arrangementsdata
 function updateArrangement($conn, $data) {
     $sql = "UPDATE arrangementer SET dato=?, tid_fra=?, tid_til=?, sted=?, arrtype=?, ssk1=?, ssk2=?, ssk3=?, ridder1=?, ridder2=?, ridder3=? WHERE id=?";
@@ -36,11 +41,11 @@ function updateArrangement($conn, $data) {
 }
 
 // Tar imot data fra AJAX-kall
-$postdata = file_get_contents("php://input");
-$data = json_decode($postdata, true);
+//$postdata = file_get_contents("php://input");
+$data = json_decode($request_body, true);
 
 // Utfører oppdatering
 $result = updateArrangement($conn, $data);
 echo $result > 0 ? "Success" : "Error";
-
+logApiCall($conn, $endpoint, $method, $user_name, $request_body);
 $conn->close();

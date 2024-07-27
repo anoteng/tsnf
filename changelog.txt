@@ -12,3 +12,8 @@
 
 - Added footer with copyright info and changelog link.
 - Implemented token-based authentication system and API security.
+
+## [2024-07-27]
+
+- Added logging to all write APIs
+- Login sessions are valid for 30 days if user allows cookies
