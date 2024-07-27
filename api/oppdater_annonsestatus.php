@@ -24,22 +24,24 @@ header("Content-Type: application/json");
 
 require '../config.php';
 require '../auth.php';
+require '../log_function.php';
 
 if (!isset($_SESSION['email'])) {
     http_response_code(401);
     echo json_encode(["message" => "Unauthorized"]);
     exit();
 }
+$method = $_SERVER['REQUEST_METHOD'];
+$endpoint = $_SERVER['REQUEST_URI'];
+$user_name = $_SESSION['user_name'];
+$request_body = file_get_contents('php://input');
 
 header("Content-Type: application/json");
-
-require '../config.php';
-
 
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method == 'POST') {
-    $input = json_decode(file_get_contents('php://input'), true);
+    $input = json_decode($request_body, true);
     $id = $input['id'];
     $field = array_key_exists('annonsert_fb', $input) ? 'annonsert_fb' : 'annonsert_kalender';
     $value = $input[$field];
@@ -50,6 +52,7 @@ if ($method == 'POST') {
 
     if ($stmt->execute()) {
         echo json_encode(["message" => "Update successful"]);
+        logApiCall($conn, $endpoint, $method, $user_name, $request_body);
     } else {
         http_response_code(500);
         echo json_encode(["message" => "Update failed"]);

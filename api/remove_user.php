@@ -21,14 +21,19 @@
 
 require '../config.php'; // Inkluder din databasekoblingsfil
 require '../auth.php';
+require '../log_function.php';
 
 if (!isset($_SESSION['email'])) {
     http_response_code(401);
     echo json_encode(["message" => "Unauthorized"]);
     exit();
 }
+$method = $_SERVER['REQUEST_METHOD'];
+$endpoint = $_SERVER['REQUEST_URI'];
+$user_name = $_SESSION['user_name'];
+$request_body = file_get_contents('php://input');
 // Hent data fra AJAX-forespørselen
-$input = json_decode(file_get_contents('php://input'), true);
+$input = json_decode($request_body, true);
 $arrangementId = $input['arrangementId'];
 $type = $input['type'];
 $number = $input['number'];
@@ -42,6 +47,7 @@ $stmt->bind_param("i", $arrangementId);
 
 if ($stmt->execute()) {
     echo json_encode(['status' => 'success']);
+    logApiCall($conn, $endpoint, $method, $user_name, $request_body);
 } else {
     echo json_encode(['status' => 'error', 'message' => $stmt->error]);
 }

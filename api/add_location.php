@@ -21,12 +21,17 @@
 
 require '../config.php';
 require '../auth.php';
+require '../log_function.php';
 
 if (!isset($_SESSION['email'])) {
     http_response_code(401);
     echo json_encode(["message" => "Unauthorized"]);
     exit();
 }
+$method = $_SERVER['REQUEST_METHOD'];
+$endpoint = $_SERVER['REQUEST_URI'];
+$user_name = $_SESSION['user_name'];
+
 // Sjekk om forespørselen er POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -50,6 +55,7 @@ $stmt->bind_param('ss', $navn, $adresse);
 
 if ($stmt->execute()) {
     echo "Lokasjon lagt til";
+    logApiCall($conn, $endpoint, $method, $user_name, json_encode($_POST));
 } else {
     http_response_code(500);
     echo "Kunne ikke legge til lokasjon: " . $stmt->error;
