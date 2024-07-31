@@ -17,8 +17,6 @@
  *
  */
 
-
-
 require 'config.php';
 
 // Sett tidsgrensen for inaktivitet (i sekunder)
@@ -133,10 +131,25 @@ if ($user_type !== 'admin') {
             <select id="arrtype" name="arrtype" required></select><br>
             <label for="kommentar">Kommentar:</label>
             <textarea id="kommentar" name="kommentar"></textarea><br>
+            <label for="max_ssk">Max SSK:</label>
+            <input type="number" id="max_ssk" name="max_ssk" value="2" min="1" max="3"><br>
+            <label for="ssk1">SSK1:</label>
+            <select class="searchable-select" id="ssk1" name="ssk1"></select><br>
+            <label for="ssk2">SSK2:</label>
+            <select class="searchable-select" id="ssk2" name="ssk2"></select><br>
+            <label for="ssk3">SSK3:</label>
+            <select class="searchable-select" id="ssk3" name="ssk3"></select><br>
+            <label for="ridderhatt1">Ridderhatt 1:</label>
+            <select class="searchable-select" id="ridderhatt1" name="ridderhatt1"></select><br>
+            <label for="ridderhatt2">Ridderhatt 2:</label>
+            <select class="searchable-select" id="ridderhatt2" name="ridderhatt2"></select><br>
+            <label for="ridderhatt3">Ridderhatt 3:</label>
+            <select class="searchable-select" id="ridderhatt3" name="ridderhatt3"></select><br>
             <button type="submit">Legg til arrangement</button>
         </form>
     </div>
 </div>
+
 <footer>
     <p>&copy; <?php echo date("Y"); ?> Andreas Noteng. <a href="changelog.php">Changelog</a>. <a href="https://github.com/anoteng/tsnf/issues">report bugs</a></p>
 </footer>

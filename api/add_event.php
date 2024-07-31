@@ -17,8 +17,6 @@
  *
  */
 
-
-
 require '../config.php';
 require '../auth.php';
 require '../log_function.php';
@@ -28,19 +26,18 @@ if (!isset($_SESSION['email'])) {
     echo json_encode(["message" => "Unauthorized"]);
     exit();
 }
+
 $method = $_SERVER['REQUEST_METHOD'];
 $endpoint = $_SERVER['REQUEST_URI'];
 $user_name = $_SESSION['user_name'];
 $request_body = file_get_contents('php://input');
 
-// Sjekk om forespørselen er POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo "Kun POST-metoden er tillatt";
     exit;
 }
 
-// Sjekk om nødvendige data er satt
 if (!isset($_POST['dato'], $_POST['tid_fra'], $_POST['tid_til'], $_POST['sted'], $_POST['arrtype'])) {
     http_response_code(400);
     echo "Manglende data";
@@ -53,14 +50,19 @@ $tid_til = $_POST['tid_til'];
 $sted = $_POST['sted'];
 $arrtype = $_POST['arrtype'];
 $kommentar = isset($_POST['kommentar']) ? $_POST['kommentar'] : '';
+$max_ssk = isset($_POST['max_ssk']) ? $_POST['max_ssk'] : null;
+$ssk1 = isset($_POST['ssk1']) ? $_POST['ssk1'] : null;
+$ssk2 = isset($_POST['ssk2']) ? $_POST['ssk2'] : null;
+$ssk3 = isset($_POST['ssk3']) ? $_POST['ssk3'] : null;
+$ridderhatt1 = isset($_POST['ridderhatt1']) ? $_POST['ridderhatt1'] : null;
+$ridderhatt2 = isset($_POST['ridderhatt2']) ? $_POST['ridderhatt2'] : null;
+$ridderhatt3 = isset($_POST['ridderhatt3']) ? $_POST['ridderhatt3'] : null;
 
-// Sett inn arrangementet i databasen
-$stmt = $conn->prepare("INSERT INTO arrangement (dato, tid_fra, tid_til, sted, arrtype, kommentar) VALUES (?, ?, ?, ?, ?, ?)");
-$stmt->bind_param('ssssss', $dato, $tid_fra, $tid_til, $sted, $arrtype, $kommentar);
+$stmt = $conn->prepare("INSERT INTO arrangement (dato, tid_fra, tid_til, sted, arrtype, kommentar, max_ssk, ssk1, ssk2, ssk3, ridder1, ridder2, ridder3) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param('ssssssissssss', $dato, $tid_fra, $tid_til, $sted, $arrtype, $kommentar, $max_ssk, $ssk1, $ssk2, $ssk3, $ridderhatt1, $ridderhatt2, $ridderhatt3);
 
 if ($stmt->execute()) {
     echo "Arrangement lagt til";
-    // Log API call
     logApiCall($conn, $endpoint, $method, $user_name, $request_body);
 } else {
     http_response_code(500);

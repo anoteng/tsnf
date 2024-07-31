@@ -43,24 +43,20 @@ function loadMunicipalitiesForLocation() {
     fetch('api/get_municipalities.php')
         .then(response => response.json())
         .then(municipalities => {
-            console.log('Municipalities for Location:', municipalities); // Log municipalities data
             const municipalitySelect = document.getElementById('kommuneLocation');
             if (municipalitySelect) {
-                console.log('Municipality select found for Location:', municipalitySelect); // Confirm municipality select element
-                municipalitySelect.innerHTML = ''; // Tøm nedtrekksmenyen
+                municipalitySelect.innerHTML = '';
                 municipalities.forEach(municipality => {
                     const option = document.createElement('option');
                     option.value = municipality.id;
                     option.textContent = municipality.navn;
-                    console.log('Adding option for Location:', option); // Log each option
                     municipalitySelect.appendChild(option);
                 });
-                console.log('Municipality select updated for Location.'); // Confirm update
             } else {
-                console.error('Municipality select element not found for Location.'); // Log error if element not found
+                console.error('Municipality select element not found for Location.');
             }
         })
-        .catch(error => console.error('Error loading municipalities for Location:', error)); // Log errors
+        .catch(error => console.error('Error loading municipalities for Location:', error));
 }
 
 // Last inn kommuner for arrangementadministrasjon
@@ -68,24 +64,20 @@ function loadMunicipalitiesForEvent() {
     fetch('api/get_municipalities.php')
         .then(response => response.json())
         .then(municipalities => {
-            console.log('Municipalities for Event:', municipalities); // Log municipalities data
             const municipalitySelect = document.getElementById('kommuneEvent');
             if (municipalitySelect) {
-                console.log('Municipality select found for Event:', municipalitySelect); // Confirm municipality select element
-                municipalitySelect.innerHTML = ''; // Tøm nedtrekksmenyen
+                municipalitySelect.innerHTML = '';
                 municipalities.forEach(municipality => {
                     const option = document.createElement('option');
                     option.value = municipality.id;
                     option.textContent = municipality.navn;
-                    console.log('Adding option for Event:', option); // Log each option
                     municipalitySelect.appendChild(option);
                 });
-                console.log('Municipality select updated for Event.'); // Confirm update
             } else {
-                console.error('Municipality select element not found for Event.'); // Log error if element not found
+                console.error('Municipality select element not found for Event.');
             }
         })
-        .catch(error => console.error('Error loading municipalities for Event:', error)); // Log errors
+        .catch(error => console.error('Error loading municipalities for Event:', error));
 }
 
 // Last inn steder basert på valgt kommune for arrangementadministrasjon
@@ -94,18 +86,16 @@ function loadLocations() {
     fetch(`api/get_locations.php?kommune_id=${kommuneId}`)
         .then(response => response.json())
         .then(locations => {
-            console.log('Locations:', locations); // Log locations data
             const locationSelect = document.getElementById('sted');
-            locationSelect.innerHTML = ''; // Tøm nedtrekksmenyen
+            locationSelect.innerHTML = '';
             locations.forEach(location => {
                 const option = document.createElement('option');
                 option.value = location.id;
                 option.textContent = location.navn;
-                console.log('Adding option:', option); // Log each option
                 locationSelect.appendChild(option);
             });
         })
-        .catch(error => console.error('Error loading locations:', error)); // Log errors
+        .catch(error => console.error('Error loading locations:', error));
 }
 
 // Last inn arrangementstyper
@@ -113,88 +103,144 @@ function loadEventTypes() {
     fetch('api/get_event_types.php')
         .then(response => response.json())
         .then(eventTypes => {
-            console.log('Event Types:', eventTypes); // Log event types data
             const eventTypeSelect = document.getElementById('arrtype');
-            eventTypeSelect.innerHTML = ''; // Tøm nedtrekksmenyen
+            eventTypeSelect.innerHTML = '';
             eventTypes.forEach(type => {
                 const option = document.createElement('option');
                 option.value = type.id;
                 option.textContent = type.type;
-                console.log('Adding option:', option); // Log each option
                 eventTypeSelect.appendChild(option);
             });
         })
-        .catch(error => console.error('Error loading event types:', error)); // Log errors
+        .catch(error => console.error('Error loading event types:', error));
 }
 
-// Last inn data ved last inn siden
+// Funksjon for å tømme skjemaet
+function resetForm(formId) {
+    document.getElementById(formId).reset();
+}
+
+// Hent brukere og fyll ut select elementene
+function fetchUsers(query, callback) {
+    fetch(`api/get_users.php?q=${query}`)
+        .then(response => response.json())
+        .then(data => {
+            callback(data);
+        })
+        .catch(error => console.error('Error fetching users:', error));
+}
+
+// Initialiser søkbare nedtrekkslister
+function initSearchableSelect(selectId) {
+    const selectElement = document.getElementById(selectId);
+
+    function fetchAndPopulateUsers(query) {
+        fetchUsers(query, function(data) {
+            // Lagre valgt verdi og tekst
+            const selectedValue = selectElement.dataset.selectedValue;
+            const selectedText = selectElement.dataset.selectedText;
+
+            selectElement.innerHTML = '';
+            data.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = user.text;
+                selectElement.appendChild(option);
+            });
+
+            // Gjenopprett valgt verdi og tekst
+            if (selectedValue && selectedText) {
+                const option = document.createElement('option');
+                option.value = selectedValue;
+                option.textContent = selectedText;
+                option.selected = true;
+                selectElement.appendChild(option);
+            }
+        });
+    }
+
+    selectElement.addEventListener('focus', function() {
+        fetchAndPopulateUsers('');
+    });
+
+    selectElement.addEventListener('input', function() {
+        const query = selectElement.value;
+        fetchAndPopulateUsers(query);
+    });
+
+    selectElement.addEventListener('change', function() {
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        const selectedValue = selectedOption ? selectedOption.value : '';
+        const selectedText = selectedOption ? selectedOption.textContent : '';
+        selectElement.dataset.selectedValue = selectedValue;
+        selectElement.dataset.selectedText = selectedText;
+    });
+}
+
+// Last inn kommuner og arrangementstyper ved sideinnlasting
 function loadSelectOptions() {
     loadMunicipalitiesForLocation();
     loadMunicipalitiesForEvent();
     loadEventTypes();
 }
 
-// Funksjon for å tømme skjemaet
-function resetForm(formId) {
-    console.log('Resetting form:', formId); // Log form reset
-    document.getElementById(formId).reset();
-}
+document.addEventListener('DOMContentLoaded', function() {
+    loadSelectOptions();
+    initSearchableSelect('ssk1');
+    initSearchableSelect('ssk2');
+    initSearchableSelect('ssk3');
+    initSearchableSelect('ridderhatt1');
+    initSearchableSelect('ridderhatt2');
+    initSearchableSelect('ridderhatt3');
 
-// Send legg til bruker skjema
-document.getElementById('addUserForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const formData = new FormData(this);
-    fetch('api/add_user.php', {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => response.text())
-        .then(responseText => {
-            alert(responseText);
-            console.log('Response from add_user.php:', responseText); // Log response text
-            if (responseText.includes("Bruker lagt til")) {
-                resetForm('addUserForm');
-            }
-            closeModal('userAdminModal');
-        });
+    document.getElementById('addUserForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        fetch('api/add_user.php', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.text())
+            .then(responseText => {
+                alert(responseText);
+                if (responseText.includes("Bruker lagt til")) {
+                    resetForm('addUserForm');
+                }
+                closeModal('userAdminModal');
+            });
+    });
+
+    document.getElementById('addLocationForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        fetch('api/add_location.php', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.text())
+            .then(responseText => {
+                alert(responseText);
+                if (responseText.includes("Lokasjon lagt til")) {
+                    resetForm('addLocationForm');
+                }
+                closeModal('locationAdminModal');
+            });
+    });
+
+    document.getElementById('addEventForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        fetch('api/add_event.php', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.text())
+            .then(responseText => {
+                alert(responseText);
+                if (responseText.includes("Arrangement lagt til")) {
+                    resetForm('addEventForm');
+                }
+                closeModal('eventAdminModal');
+            });
+    });
 });
-
-// Send legg til sted skjema
-document.getElementById('addLocationForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const formData = new FormData(this);
-    fetch('api/add_location.php', {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => response.text())
-        .then(responseText => {
-            alert(responseText);
-            console.log('Response from add_location.php:', responseText); // Log response text
-            if (responseText.includes("Lokasjon lagt til")) {
-                resetForm('addLocationForm');
-            }
-            closeModal('locationAdminModal');
-        });
-});
-
-// Send legg til arrangement skjema
-document.getElementById('addEventForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const formData = new FormData(this);
-    fetch('api/add_event.php', {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => response.text())
-        .then(responseText => {
-            alert(responseText);
-            console.log('Response from add_event.php:', responseText); // Log response text
-            if (responseText.includes("Arrangement lagt til")) {
-                resetForm('addEventForm');
-            }
-            closeModal('eventAdminModal');
-        });
-});
-
-document.addEventListener('DOMContentLoaded', loadSelectOptions);

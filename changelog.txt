@@ -21,3 +21,7 @@
 ## [2024-07-27]
 
 - Allow logout
+
+## [2024-07-31]
+
+- Fix mistakes in admin dash
