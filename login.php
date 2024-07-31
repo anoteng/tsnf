@@ -27,6 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     createMagicLink($email);
     echo "<p>En innloggingslenke ble sendt til epostadressen din. Husk at det bare fungerer med epostadressen du er registrert med hos Norges sopp- og nyttevekstforening.</p>";
     echo "<p>Det kan ta noen minutter før eposten kommer. Når eposten kommer kan du klikke på lenken eller lime inn adressen i nettleseren din.</p>";
+    echo "<p>Dersom du ikke får noen epost kan det hjelpe å legge til vaktliste@tsnf.noteng.no som klarert avsender/kontakt</p>";
 } elseif (isset($_GET['token'])) {
     $token = $_GET['token'];
     $email = validateMagicLink($token);

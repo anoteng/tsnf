@@ -63,7 +63,7 @@ $stmt->bind_param('ssssssissssss', $dato, $tid_fra, $tid_til, $sted, $arrtype, $
 
 if ($stmt->execute()) {
     echo "Arrangement lagt til";
-    logApiCall($conn, $endpoint, $method, $user_name, $request_body);
+    logApiCall($conn, $endpoint, $method, $user_name, json_decode($request_body));
 } else {
     http_response_code(500);
     echo "Kunne ikke legge til arrangement: " . $stmt->error;
