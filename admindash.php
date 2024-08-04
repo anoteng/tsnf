@@ -60,6 +60,7 @@ if ($user_type !== 'admin') {
     <li><a href="#" onclick="openModal('userAdminModal')">Brukeradministrasjon</a></li>
     <li><a href="#" onclick="openModal('locationAdminModal')">Stedsadministrasjon</a></li>
     <li><a href="#" onclick="openModal('eventAdminModal')">Arrangementadministrasjon</a></li>
+    <li><a href="#" onclick="openModal('apiLogSection')">Vis logg</a></li>
     <li><a href="dashboard.php">Tilbake til dashbord</a></li>
 </ul>
 
@@ -110,7 +111,23 @@ if ($user_type !== 'admin') {
         </form>
     </div>
 </div>
-
+<!-- Ny seksjon for API-logg -->
+<div id="apiLogSection">
+    <h2>API Log</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Endpoint</th>
+            <th>Username</th>
+            <th>Request Body</th>
+            <th>Created At</th>
+        </tr>
+        </thead>
+        <tbody id="logTableBody">
+        <!-- Log data will be inserted here by JavaScript -->
+        </tbody>
+    </table>
+</div>
 <!-- Arrangementadministrasjon Modal -->
 <div id="eventAdminModal" class="modal">
     <div class="modal-content">
