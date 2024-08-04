@@ -16,8 +16,6 @@
  *
  */
 
-
-
 // Hent user-type og user-id fra body-taggen
 const bodyElement = document.querySelector('body');
 const userType = bodyElement.getAttribute('data-user-type');
@@ -28,11 +26,8 @@ const isAdmin = userType === 'admin';
 console.log(userType + ' ' + userId);
 function createButton(cell, type, number) {
     let value = cell.getValue() || '';
-    //let id = cell.getRow().getData().id;
-    //const row = cell.getRow();
-    const id = cell.getData().id
-    const max_ssk = cell.getData().max_ssk
-    //console.log(max_ssk + ' - ' + type + ' - ' + number)
+    const id = cell.getData().id;
+    const max_ssk = cell.getData().max_ssk;
     let buttonHtml = '';
 
     if (value) {
@@ -41,7 +36,6 @@ function createButton(cell, type, number) {
             buttonHtml += `<button class="btn-small" onclick="removeUser(${id}, '${type}', ${number})">❌</button>`;
         }
     } else if (max_ssk < number && type === 'ssk') {
-        //console.log(`${id} - ${max_ssk} > ${number}`)
         buttonHtml = '';
     } else {
         if (isAdmin || (type === 'ridder' && userType === 'ridderhatt') || (type === 'ssk' && userType === 'ssk')) {
@@ -53,14 +47,9 @@ function createButton(cell, type, number) {
     return buttonHtml;
 }
 function boolMutator(value) {
-    if (value == 0){
-        return false;
-    }else{
-        return true;
-    }
+    return value == 0 ? false : true;
 }
 function assignUser(arrangementId, type, number) {
-
     fetch('api/assign_user.php', {
         method: 'POST',
         headers: {
@@ -130,8 +119,6 @@ function sendCalendarInvitation(arrangementId, type, number, userId) {
             console.error('Error:', error);
         });
 }
-
-
 function removeUser(arrangementId, type, number) {
     fetch('api/remove_user.php', {
         method: 'POST',
@@ -156,12 +143,10 @@ function removeUser(arrangementId, type, number) {
             console.error('Error:', error);
         });
 }
-
-
 function formatDate(value) {
     if (!value) return '';
     let date = luxon.DateTime.fromISO(value);
-    return date.isValid ? date.toFormat('yyyy-MM-dd') : value;
+    return date.isValid ? date.setLocale('no').toFormat('dd.MM.yyyy') : value;
 }
 
 function formatTime(value) {
@@ -175,7 +160,6 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('logout').addEventListener('click', function() {
         window.location.href = 'logout.php';
     });
-
     fetch('api/get_arrangements.php')
         .then(response => response.json())
         .then(data => {
@@ -186,23 +170,27 @@ document.addEventListener("DOMContentLoaded", function() {
             }
             const userType = document.body.dataset.userType;
             const isAdmin = userType === 'admin';
-
-            // Formatere dato og tid før de sendes til Tabulator
             data.forEach(item => {
                 item.dato = formatDate(item.dato);
                 item.tid_fra = formatTime(item.tid_fra);
                 item.tid_til = formatTime(item.tid_til);
             });
-
             const columns = [
                 { title: "Dato", field: "dato", sorter: "date", headerFilter:"input", sorterParams: { format: "yyyy-MM-dd" }, hozAlign: "center" },
-                { title: "Ukedag", field: "dato", sorter: "date", headerFilter:"input", sorterParams: { format: "yyyy-MM-dd" }, hozAlign: "center",
+                {
+                    title: "Ukedag",
+                    field: "dato",
+                    sorter: "date",
+                    headerFilter:"input",
+                    sorterParams: { format: "yyyy-MM-dd" },
+                    hozAlign: "center",
                     formatter: (cell) => {
                         let value = cell.getValue();
                         if (!value) return '';
-                        let date = luxon.DateTime.fromFormat(value, 'yyyy-MM-dd');
+                        let date = luxon.DateTime.fromFormat(value, 'dd.MM.yyyy');
                         return date.isValid ? date.setLocale('no').toFormat('cccc') : value;
-                    }},
+                    }
+                },
                 { title: "Sted", field: "sted_navn", sorter: "string", headerFilter:"input", hozAlign: "center", formatter: (cell) => `<a href="https://maps.google.com/?q=${cell.getRow().getData().adresse}" target="_blank">${cell.getValue()}</a>` },
                 { title: "Arrangementstype", field: "arrangementstype_navn", headerFilter:"input", sorter: "string", hozAlign: "center", formatter: "textarea"},
                 { title: "Tid fra", field: "tid_fra", sorter: "time", headerFilter:true, headerFilterFunc:">=", headerFilterPlaceholder:"Start etter", sorterParams: { format: "HH:mm" }, hozAlign: "center" },
@@ -217,7 +205,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
             ]
             if (isAdmin) {
-                // columns.push({ title: "Handling", formatter: (cell) => `<button class="edit-arrangement" data-id="${cell.getRow().getData().id}">Rediger</button>` });
                 columns.push({ title: "Handling", formatter: (cell) => createEditButton(cell)});
                 columns.push({
                     title: "Annonsert FB",
@@ -271,78 +258,105 @@ document.addEventListener("DOMContentLoaded", function() {
                 pagination: "local",
                 paginationSize: 10,
                 initialSort: [
-                    { column: "dato", dir: "asc" } // Initial sort on the date column
+                    { column: "dato", dir: "asc" }
                 ],
                 columns: columns
             });
 
-            // Åpner redigeringsmodalen og laster data dynamisk
-            function openEditModal(data) {
-                // Fyll ut skjemaet med eksisterende data
-                populateFormData(data);
+            async function openEditModal(data) {
+                try {
+                    await loadDropdowns();
+                    document.getElementById('edit-kommune').addEventListener('change', async function() {
+                        await loadDropdown('edit-sted', 'steder', this.value);
+                    });
+                    await populateFormData(data);
+                    setTimeout(() => {
+                        document.getElementById('edit-sted').value = data.sted;
+                    }, 1000); // Forsinkelse for å sikre at sted-listen er fullstendig oppdatert
 
-                // Laster nedtrekkslister kun når modalen åpnes
-                loadDropdowns();
-
-                // Viser modalen
-                const modal = document.getElementById('editModal');
-                modal.style.display = 'block';
-
-                // Setter opp lukkefunksjonalitet for modalen
-                setupModalCloseHandlers(modal);
+                    const modal = document.getElementById('editModal');
+                    modal.style.display = 'block';
+                    setupModalCloseHandlers(modal);
+                } catch (error) {
+                    console.error('Error opening edit modal:', error);
+                }
             }
 
-            function populateFormData(data) {
-                document.getElementById('edit-id').value = data.id;
-                document.getElementById('edit-dato').value = data.dato;
-                document.getElementById('edit-tid_fra').value = data.tid_fra;
-                document.getElementById('edit-tid_til').value = data.tid_til;
-                document.getElementById('edit-kommune').value = data.kommune_navn; // Assumes options are already loaded and matched by names
-                document.getElementById('edit-sted').value = data.sted_navn; // Assumes options are already loaded and matched by names
-                document.getElementById('edit-arrtype').value = data.arrangementstype_navn; // Assumes options are already loaded and matched by names
-                document.getElementById('edit-ssk1').value = data.ssk1_navn; // Assumes options are already loaded and matched by names
-                document.getElementById('edit-ssk2').value = data.ssk2_navn;
-                document.getElementById('edit-ssk3').value = data.ssk3_navn;
-                document.getElementById('edit-ridder1').value = data.ridder1_navn;
-                document.getElementById('edit-ridder2').value = data.ridder2_navn;
-                document.getElementById('edit-ridder3').value = data.ridder3_navn;
+            async function findAndPopulate(id, data) {
+                document.getElementById(id).value = data;
+                await triggerChange(id);
             }
 
-            function loadDropdowns() {
-                loadDropdown('edit-kommune', 'kommune');
-                document.getElementById('edit-kommune').addEventListener('change', function() {
-                    loadDropdown('edit-sted', 'steder', this.value);
+            function triggerChange(elem) {
+                return new Promise((resolve) => {
+                    const e = document.getElementById(elem);
+                    const event = new Event('change');
+                    e.dispatchEvent(event);
+                    resolve();
                 });
-                loadDropdown('edit-arrtype', 'arrtype');
-                loadDropdown('edit-ssk1', 'ssk');
-                loadDropdown('edit-ssk2', 'ssk');
-                loadDropdown('edit-ssk3', 'ssk');
-                loadDropdown('edit-ridder1', 'ridderhatt');
-                loadDropdown('edit-ridder2', 'ridderhatt');
-                loadDropdown('edit-ridder3', 'ridderhatt');
+            }
+
+            async function populateFormData(data) {
+                console.log(data);
+                await findAndPopulate('edit-id', data.id);
+                await findAndPopulate('edit-dato', data.dato);
+                await findAndPopulate('edit-tid_fra', data.tid_fra);
+                await findAndPopulate('edit-tid_til', data.tid_til);
+                await findAndPopulate('edit-kommune', data.kommune);
+                await new Promise(resolve => setTimeout(resolve, 100)); // Forsinkelse for å sikre at dropdown er oppdatert
+                await findAndPopulate('edit-sted', data.sted);
+                await findAndPopulate('edit-arrtype', data.arrtype);
+                await findAndPopulate('edit-max_ssk', data.max_ssk);
+                await findAndPopulate('edit-ssk1', data.ssk1);
+                await findAndPopulate('edit-ssk2', data.ssk2);
+                await findAndPopulate('edit-ssk3', data.ssk3);
+                await findAndPopulate('edit-ridder1', data.ridder1);
+                await findAndPopulate('edit-ridder2', data.ridder2);
+                await findAndPopulate('edit-ridder3', data.ridder3);
+            }
+
+            async function loadDropdowns() {
+                try {
+                    await loadDropdown('edit-kommune', 'kommune');
+                    await loadDropdown('edit-arrtype', 'arrtype');
+                    await loadDropdown('edit-ssk1', 'ssk');
+                    await loadDropdown('edit-ssk2', 'ssk');
+                    await loadDropdown('edit-ssk3', 'ssk');
+                    await loadDropdown('edit-ridder1', 'ridderhatt');
+                    await loadDropdown('edit-ridder2', 'ridderhatt');
+                    await loadDropdown('edit-ridder3', 'ridderhatt');
+                } catch (error) {
+                    console.error('Error loading dropdowns:', error);
+                }
             }
 
             function loadDropdown(elementId, table, kommune_id = null) {
-                const url = new URL('api/getDropdownData.php', window.location.href);
-                url.search = new URLSearchParams({ table: table });
-                if (kommune_id) {
-                    url.search.append('kommune_id', kommune_id);
-                }
+                return new Promise((resolve, reject) => {
+                    const url = new URL('api/getDropdownData.php', window.location.href);
+                    const params = new URLSearchParams({ table: table });
+                    if (kommune_id) {
+                        params.append('kommune', kommune_id);
+                    }
+                    url.search = params.toString();
 
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        const select = document.getElementById(elementId);
-                        select.innerHTML = ''; // Tømmer eksisterende valg
-                        data.forEach(item => {
-                            const option = document.createElement('option');
-                            option.value = item.id;
-                            option.textContent = item.navn;
-                            select.appendChild(option);
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            const select = document.getElementById(elementId);
+                            select.innerHTML = ''; // Tømmer eksisterende valg
+                            data.forEach(item => {
+                                const option = document.createElement('option');
+                                option.value = item.id;
+                                option.textContent = item.navn;
+                                select.appendChild(option);
+                            });
+                            resolve(data); // Løser promise med data
+                        })
+                        .catch(error => {
+                            console.error('Error loading the dropdown data:', error);
+                            reject(error); // Avviser promise med error
                         });
-                        // Kanskje sett valgt verdi her hvis det er relevant
-                    })
-                    .catch(error => console.error('Error loading the dropdown data:', error));
+                });
             }
 
             function setupModalCloseHandlers(modal) {
@@ -356,48 +370,22 @@ document.addEventListener("DOMContentLoaded", function() {
                 };
             }
 
-            function createEditButton(cell){
-                const button = document.createElement("button")
-                button.className = "edit-arrangement"
-                button.setAttribute('data-id', cell.getRow().getData().id)
-                button.innerText = 'Rediger'
+            function createEditButton(cell) {
+                const button = document.createElement("button");
+                button.className = "edit-arrangement";
+                button.setAttribute('data-id', cell.getRow().getData().id);
+                button.innerText = 'Rediger';
                 button.addEventListener('click', function() {
                     console.log('button click registered: ' + button.dataset.id);
-                    // const id = button.dataset.id;
                     const row = cell.getRow();
                     const data = row.getData();
                     openEditModal(data);
-                })
-                return button
-
-            }
-
-
-            document.querySelectorAll('.edit-arrangement').forEach(button => {
-                button.addEventListener('click', function() {
-                    console.log('button click registered: ' + button.dataset.id);
-                    const id = button.dataset.id;
-                    const row = table.getRow(id);
-                    const data = row.getData();
-                    openEditModal(data);
                 });
-            });
+                return button;
+            }
 
             document.getElementById('editModalClose').addEventListener('click', function() {
                 document.getElementById('editModal').style.display = 'none';
-            });
-
-            document.getElementById('filterLedige').addEventListener('click', function() {
-                table.setFilter([
-                    [
-                        { field: "ssk1_navn", type: "=", value: "" },
-                        { field: "ssk2_navn", type: "=", value: "" },
-                        { field: "ssk3_navn", type: "=", value: "" },
-                        { field: "ridder1_navn", type: "=", value: "" },
-                        { field: "ridder2_navn", type: "=", value: "" },
-                        { field: "ridder3_navn", type: "=", value: "" }
-                    ]
-                ]);
             });
 
             document.getElementById('filterMine').addEventListener('click', function() {
@@ -416,6 +404,27 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('clearFilters').addEventListener('click', function() {
                 table.clearFilter();
             });
+            // Initialiser Flatpickr for tid- og datoinput-feltene
+            flatpickr.localize(flatpickr.l10ns.no);
+            flatpickr("#edit-dato", {
+                dateFormat: "d.m.Y",
+                locale: "no"
+            });
+
+            flatpickr("#edit-tid_fra", {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "H:i",
+                time_24hr: true
+            });
+
+            flatpickr("#edit-tid_til", {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "H:i",
+                time_24hr: true
+            });
+
 
         })
         .catch(error => {

@@ -25,3 +25,7 @@
 ## [2024-07-31]
 
 - Fix mistakes in admin dash
+
+## [2024-08-04]
+
+- Admins can edit existing events

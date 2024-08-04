@@ -48,6 +48,9 @@ $_SESSION['last_activity'] = time();
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/no.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/5.2.7/css/tabulator.min.css">
     <link rel="stylesheet" href="style.css">
 
@@ -110,6 +113,10 @@ $_SESSION['last_activity'] = time();
                 <select id="edit-arrtype" class="form-control">
                     <!-- Arrangementstype options loaded dynamically -->
                 </select>
+            </div>
+            <div class="form-group">
+                <label for="edit-max_ssk" class="col-form-label">Max antall SSK:</label>
+                <input type="number" class="form-control" id="edit-max_ssk" name="edit-max_ssk">
             </div>
             <div class="form-group">
                 <label for="edit-ssk1">SSK 1:</label>

@@ -45,6 +45,7 @@ $query = "SELECT
             s.navn AS sted_navn,
             s.adresse,
             k.navn AS kommune_navn,
+            k.id AS kommune,
             at.type AS arrangementstype_navn,
             ssk1.navn AS ssk1_navn,
             ssk2.navn AS ssk2_navn,

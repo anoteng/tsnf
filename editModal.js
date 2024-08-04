@@ -53,6 +53,7 @@ function saveChanges() {
         tid_til: document.getElementById('edit-tid_til').value,
         sted: document.getElementById('edit-sted').value,
         arrtype: document.getElementById('edit-arrtype').value,
+        max_ssk: document.getElementById('edit-max_ssk').value,
         ssk1: document.getElementById('edit-ssk1').value,
         ssk2: document.getElementById('edit-ssk2').value,
         ssk3: document.getElementById('edit-ssk3').value,
@@ -73,6 +74,7 @@ function saveChanges() {
             alert(result);
             // Lukk modalen og oppdater siden eller listevisningen her om nødvendig
             document.getElementById('editModal').style.display = 'none';
+            location.reload();
         })
         .catch(error => {
             console.error('Error:', error);

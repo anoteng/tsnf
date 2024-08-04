@@ -30,7 +30,7 @@ if (!isset($_SESSION['email'])) {
 function getDropdownData($conn, $table, $filter = null) {
     $sql = "SELECT * FROM " . $table;
     if ($filter) {
-        $sql .= " WHERE kommune_id = ?";
+        $sql .= " WHERE kommune = ?";
     }
     $stmt = $conn->prepare($sql);
     if ($filter) {
@@ -47,7 +47,7 @@ function getDropdownData($conn, $table, $filter = null) {
 
 
 // Check if a specific filter is required (for 'steder' based on 'kommune')
-$filter = isset($_GET['kommune_id']) ? (int)$_GET['kommune_id'] : null;
+$filter = isset($_GET['kommune']) ? (int)$_GET['kommune'] : null;
 $table = isset($_GET['table']) ? $_GET['table'] : '';
 
 // Collect data
