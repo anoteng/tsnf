@@ -29,3 +29,8 @@
 ## [2024-08-04]
 
 - Admins can edit existing events
+
+## [2024-08-04]
+
+- Redesign user handling
+- Do not create token on invalid email address

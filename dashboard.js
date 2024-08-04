@@ -319,24 +319,26 @@ document.addEventListener("DOMContentLoaded", function() {
                 try {
                     await loadDropdown('edit-kommune', 'kommune');
                     await loadDropdown('edit-arrtype', 'arrtype');
-                    await loadDropdown('edit-ssk1', 'ssk');
-                    await loadDropdown('edit-ssk2', 'ssk');
-                    await loadDropdown('edit-ssk3', 'ssk');
-                    await loadDropdown('edit-ridder1', 'ridderhatt');
-                    await loadDropdown('edit-ridder2', 'ridderhatt');
-                    await loadDropdown('edit-ridder3', 'ridderhatt');
+                    await loadDropdown('edit-ssk1', 'users', 'user_role', 'ssk');
+                    await loadDropdown('edit-ssk2', 'users', 'user_role', 'ssk');
+                    await loadDropdown('edit-ssk3', 'users', 'user_role', 'ssk');
+                    await loadDropdown('edit-ridder1', 'users', 'user_role', 'ridderhatt');
+                    await loadDropdown('edit-ridder2', 'users', 'user_role', 'ridderhatt');
+                    await loadDropdown('edit-ridder3', 'users', 'user_role', 'ridderhatt');
                 } catch (error) {
                     console.error('Error loading dropdowns:', error);
                 }
             }
 
-            function loadDropdown(elementId, table, kommune_id = null) {
+            function loadDropdown(elementId, table, filter = null, filter_id = null) {
                 return new Promise((resolve, reject) => {
                     const url = new URL('api/getDropdownData.php', window.location.href);
                     const params = new URLSearchParams({ table: table });
-                    if (kommune_id) {
-                        params.append('kommune', kommune_id);
+                    if (filter) {
+                        params.append('filter', filter);
+                        params.append('filter_string', filter_id);
                     }
+
                     url.search = params.toString();
 
                     fetch(url)

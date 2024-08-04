@@ -21,7 +21,11 @@ require '../config.php';
 
 $search = $_GET['q'];
 
-$sql = "SELECT id, navn as text FROM ssk WHERE navn LIKE ? UNION SELECT id, navn as text FROM ridderhatt WHERE navn LIKE ?";
+$sql = "
+    SELECT u.id, u.navn as text 
+    FROM users u 
+    JOIN user_roles ur ON u.id = ur.user_id 
+    WHERE ur.role IN ('ssk', 'ridderhatt') AND u.navn LIKE ?";
 $stmt = $conn->prepare($sql);
 $searchParam = '%' . $search . '%';
 $stmt->bind_param('ss', $searchParam, $searchParam);

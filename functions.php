@@ -38,34 +38,59 @@ function generateToken() {
     return bin2hex(random_bytes(16));
 }
 
-function createMagicLink($email) {
+function createMagicLink($user_id) {
     global $conn;
-    $token = generateToken();
-    $expiry = date("Y-m-d H:i:s", strtotime('+1 week'));
 
-    $stmt = $conn->prepare("INSERT INTO magic_links (email, token, expiry) VALUES (?, ?, ?)");
-    $stmt->bind_param("sss", $email, $token, $expiry);
+    // Generer en unik token
+    $token = bin2hex(random_bytes(16));
+    $expiry = date('Y-m-d H:i:s', strtotime('+1 hour'));
+
+    // Sett inn token i databasen
+    $stmt = $conn->prepare("INSERT INTO magic_links (user_id, token, expiry) VALUES (?, ?, ?)");
+    $stmt->bind_param("iss", $user_id, $token, $expiry);
     $stmt->execute();
     $stmt->close();
 
-    sendMagicLink($email, $token);
+    // Send epost til brukeren med innloggingslenke
+    $sql = "SELECT epost FROM users WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $stmt->bind_result($email);
+    $stmt->fetch();
+    $stmt->close();
+
+    $subject = "Logg inn på TSNF Vaktliste";
+    $message = "Klikk på følgende lenke for å logge inn: https://example.com/login.php?token=$token";
+    mail($email, $subject, $message);
 }
 
 function validateMagicLink($token) {
     global $conn;
-    $stmt = $conn->prepare("SELECT email, expiry FROM magic_links WHERE token = ?");
+
+    $stmt = $conn->prepare("SELECT user_id FROM magic_links WHERE token = ? AND expiry > NOW()");
     $stmt->bind_param("s", $token);
     $stmt->execute();
-    $stmt->bind_result($email, $expiry);
+    $stmt->bind_result($user_id);
     $stmt->fetch();
     $stmt->close();
 
-    if ($email && strtotime($expiry) > time()) {
-        return $email;
-    } else {
-        return false;
-    }
+    return $user_id ? $user_id : false;
 }
+
+function getUserIdByEmail($email) {
+    global $conn;
+
+    $stmt = $conn->prepare("SELECT id FROM users WHERE epost = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $stmt->bind_result($user_id);
+    $stmt->fetch();
+    $stmt->close();
+
+    return $user_id;
+}
+
 function sendCalendarInvitation($toEmail, $eventTitle, $eventStart, $eventEnd, $location, $adresse, $date, $participants) {
 
     $vEvent = new Event();

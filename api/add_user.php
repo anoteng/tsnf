@@ -17,8 +17,6 @@
  *
  */
 
-
-
 require '../config.php';
 require '../auth.php';
 require '../log_function.php';
@@ -57,39 +55,29 @@ $poststed = isset($_POST['poststed']) ? $_POST['poststed'] : null;
 $postnr = isset($_POST['postnr']) ? $_POST['postnr'] : null;
 $tsnf_medlem = isset($_POST['tsnf_medlem']) ? (bool)$_POST['tsnf_medlem'] : 1;
 
-$table = '';
-$stmt = null;
-
-switch ($user_level) {
-    case 'admin':
-        $table = 'admins';
-        $stmt = $conn->prepare("INSERT INTO $table (fornavn, etternavn, epost) VALUES (?, ?, ?)");
-        $stmt->bind_param('sss', $fornavn, $etternavn, $epost);
-        break;
-    case 'ssk':
-        $table = 'ssk';
-        $stmt = $conn->prepare("INSERT INTO $table (fornavn, etternavn, epost, adresse, poststed, postnr, tsnf_medlem) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param('ssssssi', $fornavn, $etternavn, $epost, $adresse, $poststed, $postnr, $tsnf_medlem);
-        break;
-    case 'ridderhatt':
-        $table = 'ridderhatt';
-        $stmt = $conn->prepare("INSERT INTO $table (fornavn, etternavn, epost, adresse, poststed, postnr) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param('ssssss', $fornavn, $etternavn, $epost, $adresse, $poststed, $postnr);
-        break;
-    default:
-        http_response_code(400);
-        echo "Ugyldig brukernivå";
-        exit;
-}
+$stmt = $conn->prepare("INSERT INTO users (fornavn, etternavn, epost, adresse, poststed, postnr, tsnf_medlem) VALUES (?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param('ssssssi', $fornavn, $etternavn, $epost, $adresse, $poststed, $postnr, $tsnf_medlem);
 
 if ($stmt->execute()) {
-    echo "Bruker lagt til i $table";
-    logApiCall($conn, $endpoint, $method, $user_name, json_encode($_POST));
+    $user_id = $stmt->insert_id;
+    $stmt->close();
+
+    $stmt = $conn->prepare("INSERT INTO user_roles (user_id, role) VALUES (?, ?)");
+    $stmt->bind_param('is', $user_id, $user_level);
+
+    if ($stmt->execute()) {
+        echo "Bruker lagt til med rolle $user_level";
+        logApiCall($conn, $endpoint, $method, $user_name, json_encode($_POST));
+    } else {
+        http_response_code(500);
+        echo "Kunne ikke legge til brukerrolle: " . $stmt->error;
+    }
+
+    $stmt->close();
 } else {
     http_response_code(500);
     echo "Kunne ikke legge til bruker: " . $stmt->error;
 }
 
-$stmt->close();
 $conn->close();
 ?>

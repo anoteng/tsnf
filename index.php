@@ -43,9 +43,9 @@ $query = "SELECT
           FROM arrangement a
           JOIN steder s ON a.sted = s.id
           JOIN arrtype at ON a.arrtype = at.id
-          LEFT JOIN ssk ssk1 ON a.ssk1 = ssk1.id
-          LEFT JOIN ssk ssk2 ON a.ssk2 = ssk2.id
-          LEFT JOIN ssk ssk3 ON a.ssk3 = ssk3.id ORDER BY a.dato ASC";
+          LEFT JOIN users ssk1 ON a.ssk1 = ssk1.id
+          LEFT JOIN users ssk2 ON a.ssk2 = ssk2.id
+          LEFT JOIN users ssk3 ON a.ssk3 = ssk3.id ORDER BY a.dato ASC";
 $result = $conn->query($query);
 ?>
 
@@ -83,6 +83,9 @@ $result = $conn->query($query);
         if ($result->num_rows > 0) {
             while($row = $result->fetch_assoc()) {
                 $ukedag = strftime('%A', strtotime($row['dato']));
+                $ssk1 = strtok($row['ssk1_navn'], ' ');
+                $ssk2 = strtok($row['ssk2_navn'], ' ');
+                $ssk3 = strtok($row['ssk3_navn'], ' ');
                 echo "<tr>
                                 <td>{$row['dato']}</td>
                                 <td>{$ukedag}</td>
@@ -90,9 +93,9 @@ $result = $conn->query($query);
                                 <td>{$row['arrangementstype_navn']}</td>
                                 <td>{$row['tid_fra']}</td>
                                 <td>{$row['tid_til']}</td>
-                                <td>{$row['ssk1_navn']}</td>
-                                <td>{$row['ssk2_navn']}</td>
-                                <td>{$row['ssk3_navn']}</td>
+                                <td>{$ssk1}</td>
+                                <td>{$ssk2}</td>
+                                <td>{$ssk3}</td>
                                 <td>{$row['kommentar']}</td>
                               </tr>";
             }

@@ -17,8 +17,6 @@
  *
  */
 
-
-
 require '../config.php';
 require '../auth.php';
 
@@ -47,9 +45,9 @@ $query = "SELECT
             k.navn AS kommune_navn,
             k.id AS kommune,
             at.type AS arrangementstype_navn,
-            ssk1.navn AS ssk1_navn,
-            ssk2.navn AS ssk2_navn,
-            ssk3.navn AS ssk3_navn,
+            u1.navn AS ssk1_navn,
+            u2.navn AS ssk2_navn,
+            u3.navn AS ssk3_navn,
             r1.navn AS ridder1_navn,
             r2.navn AS ridder2_navn,
             r3.navn AS ridder3_navn,
@@ -61,12 +59,12 @@ $query = "SELECT
           JOIN steder s ON a.sted = s.id
           JOIN kommune k ON s.kommune = k.id
           JOIN arrtype at ON a.arrtype = at.id
-          LEFT JOIN ssk ssk1 ON a.ssk1 = ssk1.id
-          LEFT JOIN ssk ssk2 ON a.ssk2 = ssk2.id
-          LEFT JOIN ssk ssk3 ON a.ssk3 = ssk3.id
-          LEFT JOIN ridderhatt r1 ON a.ridder1 = r1.id
-          LEFT JOIN ridderhatt r2 ON a.ridder2 = r2.id
-          LEFT JOIN ridderhatt r3 ON a.ridder3 = r3.id";
+          LEFT JOIN users u1 ON a.ssk1 = u1.id
+          LEFT JOIN users u2 ON a.ssk2 = u2.id
+          LEFT JOIN users u3 ON a.ssk3 = u3.id
+          LEFT JOIN users r1 ON a.ridder1 = r1.id
+          LEFT JOIN users r2 ON a.ridder2 = r2.id
+          LEFT JOIN users r3 ON a.ridder3 = r3.id";
 
 $result = $conn->query($query);
 
