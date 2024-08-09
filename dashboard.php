@@ -72,7 +72,7 @@ $_SESSION['last_activity'] = time();
 <!--    <button id="filterLedige" class="btn btn-secondary">Vis ledige vakter</button>-->
     <button id="filterMine" class="btn btn-secondary">Vis mine vakter</button>
     <button id="clearFilters" class="btn btn-secondary">Fjern filtre</button>
-
+<!--    <p><i>NB! Sortering på dato er midlertidig ikke i orden, jobber med å løse problemet</i></p> -->
     <div id="arrangementTable"></div>
     <button id="logout" class="btn btn-danger">Logg ut</button>
 </div>

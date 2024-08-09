@@ -176,7 +176,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 item.tid_til = formatTime(item.tid_til);
             });
             const columns = [
-                { title: "Dato", field: "dato", sorter: "date", headerFilter:"input", sorterParams: { format: "yyyy-MM-dd" }, hozAlign: "center" },
                 {
                     title: "Ukedag",
                     field: "dato",
@@ -191,6 +190,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         return date.isValid ? date.setLocale('no').toFormat('cccc') : value;
                     }
                 },
+                { title: "Dato", field: "dato", sorter: "date", headerFilter:"input", sorterParams: { format: "dd.MM.yyyy" }, hozAlign: "center" },
                 { title: "Sted", field: "sted_navn", sorter: "string", headerFilter:"input", hozAlign: "center", formatter: (cell) => `<a href="https://maps.google.com/?q=${cell.getRow().getData().adresse}" target="_blank">${cell.getValue()}</a>` },
                 { title: "Arrangementstype", field: "arrangementstype_navn", headerFilter:"input", sorter: "string", hozAlign: "center", formatter: "textarea"},
                 { title: "Tid fra", field: "tid_fra", sorter: "time", headerFilter:true, headerFilterFunc:">=", headerFilterPlaceholder:"Start etter", sorterParams: { format: "HH:mm" }, hozAlign: "center" },
