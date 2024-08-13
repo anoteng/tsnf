@@ -32,7 +32,10 @@ $id = isset($_GET['id']) ? $_GET['id'] : null;
 $data = null;
 if($id){
     $query = "SELECT a.annonsert_kalender AS annonsert_kalender WHERE a.id = ?";
-    $result = $conn->query($query);
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     $data = array();
     while ($row = $result->fetch_assoc()) {
         $data[] = $row;
