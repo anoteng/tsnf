@@ -31,7 +31,7 @@ header('Content-Type: application/json');
 $id = isset($_GET['id']) ? $_GET['id'] : null;
 $data = null;
 if($id){
-    $query = "SELECT a.annonsert_kalender AS annonsert_kalender WHERE a.id = ?";
+    $query = "SELECT a.annonsert_kalender AS annonsert_kalender FROM arrangement a WHERE a.id = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $id);
     $stmt->execute();
