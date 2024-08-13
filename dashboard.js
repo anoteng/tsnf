@@ -119,30 +119,68 @@ function sendCalendarInvitation(arrangementId, type, number, userId) {
             console.error('Error:', error);
         });
 }
+// function removeUser(arrangementId, type, number) {
+//     fetch('api/remove_user.php', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({
+//             arrangementId: arrangementId,
+//             type: type,
+//             number: number
+//         })
+//     })
+//         .then(response => response.json())
+//         .then(data => {
+//             if (data.status === 'success') {
+//                 location.reload(); // Reload the page to see the updated data
+//             } else {
+//                 console.error('Error removing user:', data.message);
+//             }
+//         })
+//         .catch(error => {
+//             console.error('Error:', error);
+//         });
+// }
 function removeUser(arrangementId, type, number) {
-    fetch('api/remove_user.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            arrangementId: arrangementId,
-            type: type,
-            number: number
-        })
-    })
+    // Først, hent arrangementdata for å sjekke status på "annonsert kalender"
+    fetch(`api/get_annonser_status.php?id=${arrangementId}`)
         .then(response => response.json())
         .then(data => {
-            if (data.status === 'success') {
-                location.reload(); // Reload the page to see the updated data
+            if (data.annonsert_kalender && userType === 'ssk') {
+                alert("Du kan ikke fjerne deg selv når arrangementet er annonsert i kalenderen. Kontakt styret om du ikke kan stille: post@tsnf.no");
             } else {
-                console.error('Error removing user:', data.message);
+                // Hvis "annonsert kalender" ikke er true eller brukeren ikke er "ssk", tillat fjerning
+                fetch('api/remove_user.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        arrangementId: arrangementId,
+                        type: type,
+                        number: number
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            location.reload(); // Last inn siden på nytt for å vise oppdatert data
+                        } else {
+                            console.error('Feil ved fjerning av bruker:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Feil:', error);
+                    });
             }
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Feil ved henting av arrangementdata:', error);
         });
 }
+
 function formatDate(value) {
     if (!value) return '';
     let date = luxon.DateTime.fromISO(value);
