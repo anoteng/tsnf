@@ -148,7 +148,7 @@ function removeUser(arrangementId, type, number) {
     fetch(`api/get_annonser_status.php?id=${arrangementId}`)
         .then(response => response.json())
         .then(data => {
-            if (data.annonsert_kalender && userType === 'ssk') {
+            if (data[0].annonsert_kalender == 1 && userType != 'admin') {
                 alert("Du kan ikke fjerne deg selv når arrangementet er annonsert i kalenderen. Kontakt styret om du ikke kan stille: post@tsnf.no");
             } else {
                 // Hvis "annonsert kalender" ikke er true eller brukeren ikke er "ssk", tillat fjerning

@@ -33,3 +33,7 @@
 ## [2024-08-09]
 
 - Fix date sorting bug in dashboard
+
+## [2024-08-13]
+
+- Block self-removal after published event
