@@ -120,8 +120,15 @@ function sendCalendarInvitation($toEmail, $eventTitle, $eventStart, $eventEnd, $
     $headers .= "Reply-To: andreas@noteng.no\r\n";
     $headers .= "Content-Type: text/calendar; charset=utf-8; method=REQUEST;\r\n";
     $headers .= "Content-Transfer-Encoding: 7bit;\r\n";
-
-    sendICS($toEmail, 'TSNF vakt registrert: ' . $eventTitle, $icsFileContent, $headers);
+    if (DEVELOPMENT_MODE) {
+        $message = $icsFileContent->__toString();
+        // Lagre e-posten i en tekstfil
+        $logFilePath = '/var/www/tsnfdev/email_log.txt';
+        $logMessage = "To: $toEmail\nSubject: $eventTitle\nHeaders: $headers\n\n$message\n\n";
+        file_put_contents($logFilePath, $logMessage, FILE_APPEND);
+    } else {
+        sendICS($toEmail, 'TSNF vakt registrert: ' . $eventTitle, $icsFileContent, $headers);
+    }
 }
 function getEventDetails($arrangementID) {
     global $conn;

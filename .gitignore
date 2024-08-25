@@ -2,3 +2,4 @@ config.php
 email_config.php
 vendor/
 .idea/
+email_log.txt
