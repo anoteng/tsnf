@@ -17,7 +17,7 @@
  *
  */
 
-require '../config.php';
+require_once '../config.php';
 require '../auth.php';
 require '../log_function.php';
 

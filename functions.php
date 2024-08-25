@@ -19,7 +19,7 @@
 
 
 
-require 'config.php';
+require_once 'config.php';
 require 'email_config.php'; // Inkluder e-postkonfigurasjonen
 require_once __DIR__ . '/vendor/autoload.php';  // Juster stien etter behov
 

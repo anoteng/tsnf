@@ -17,7 +17,7 @@
  *
  */
 
-require 'config.php';
+require_once 'config.php';
 require 'auth.php';
 
 // Sett tidsgrensen for inaktivitet (i sekunder)

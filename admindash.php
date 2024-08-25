@@ -17,7 +17,7 @@
  *
  */
 
-require 'config.php';
+require_once 'config.php';
 
 // Sett tidsgrensen for inaktivitet (i sekunder)
 $inactive = 604800; // 1 uke
